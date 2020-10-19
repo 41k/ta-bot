@@ -18,11 +18,11 @@ class ArchTest {
 
         noClasses()
             .that()
-                .resideInAnyPackage("root.service..")
+                .resideInAnyPackage("root.framework.service..")
             .or()
-                .resideInAnyPackage("root.repository..")
+                .resideInAnyPackage("root.framework.repository..")
             .should().dependOnClassesThat()
-                .resideInAnyPackage("..root.web..")
+                .resideInAnyPackage("..root.framework.web..")
         .because("Services and repositories should not depend on web layer")
         .check(importedClasses);
     }

@@ -43,7 +43,7 @@ spring:
   r2dbc:
     url: r2dbc:mysql://localhost:3306/tabot?useUnicode=true&characterEncoding=utf8&useSSL=false&useLegacyDatetimeCode=false&serverTimezone=UTC&createDatabaseIfNotExist=true
     username: root
-    password:
+    password: root
   thymeleaf:
     cache: true
 
