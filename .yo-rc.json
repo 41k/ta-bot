@@ -1,0 +1,43 @@
+{
+  "generator-jhipster": {
+    "promptValues": {
+      "packageName": "root",
+      "nativeLanguage": "en"
+    },
+    "jhipsterVersion": "6.10.3",
+    "applicationType": "monolith",
+    "baseName": "tabot",
+    "packageName": "root",
+    "packageFolder": "root",
+    "serverPort": "8080",
+    "authenticationType": "jwt",
+    "cacheProvider": "no",
+    "websocket": false,
+    "databaseType": "sql",
+    "devDatabaseType": "mysql",
+    "prodDatabaseType": "mysql",
+    "searchEngine": false,
+    "messageBroker": false,
+    "serviceDiscoveryType": false,
+    "buildTool": "maven",
+    "enableSwaggerCodegen": false,
+    "jwtSecretKey": "ZmRmY2Q3NTQyYTQzNTY1YzhkNmE2MWNlMDQ2YWZiZjFhYjU1NzQ2ZDkxZDBmYzhkZGY5YTlhYmVmYmM2YTkyYzQyMDMyZDM1NTM1ZjI4NDMyYjU5OGYzNDNiNjE5MWZjZTdkYTFjMmNkYzg1MDY1ZWMwM2Q3NGIyYTA0NDc2MDA=",
+    "embeddableLaunchScript": false,
+    "useSass": true,
+    "clientPackageManager": "npm",
+    "clientFramework": "angularX",
+    "clientTheme": "litera",
+    "clientThemeVariant": "light",
+    "creationTimestamp": 1603095562587,
+    "testFrameworks": [],
+    "jhiPrefix": "jhi",
+    "entitySuffix": "",
+    "dtoSuffix": "DTO",
+    "otherModules": [],
+    "enableTranslation": true,
+    "nativeLanguage": "en",
+    "languages": ["en", "ru"],
+    "blueprints": [],
+    "reactive": true
+  }
+}
