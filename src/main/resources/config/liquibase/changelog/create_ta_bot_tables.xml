@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.9.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+    <changeSet id="00000000000003" author="ta-bot-dev">
+
+        <createTable tableName="trade_history_item">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="strategy_id" type="varchar(150)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="exchange_id" type="varchar(150)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="entry_timestamp" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="exit_timestamp" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="profit" type="double">
+                <constraints nullable="false"/>
+            </column>
+            <column name="ticks" type="text">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addUniqueConstraint
+            columnNames="strategy_id, exchange_id, entry_timestamp"
+            constraintName="trade_history_item_uniqueness"
+            tableName="trade_history_item"/>
+
+        <createTable tableName="bar">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="exchange_id" type="varchar(150)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="duration" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="timestamp" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="open" type="double">
+                <constraints nullable="false"/>
+            </column>
+            <column name="high" type="double">
+                <constraints nullable="false"/>
+            </column>
+            <column name="low" type="double">
+                <constraints nullable="false"/>
+            </column>
+            <column name="close" type="double">
+                <constraints nullable="false"/>
+            </column>
+            <column name="volume" type="double">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addUniqueConstraint
+            columnNames="exchange_id, duration, timestamp"
+            constraintName="bar_uniqueness"
+            tableName="bar"/>
+
+    </changeSet>
+</databaseChangeLog>
