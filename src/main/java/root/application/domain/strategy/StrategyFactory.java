@@ -15,22 +15,11 @@ public interface StrategyFactory
 
     String getStrategyId();
 
-    String getExchangeId();
-
     BarSeries getBarSeries();
 
-    default Optional<Integer> getUnstablePeriodLength()
-    {
-        return Optional.empty();
-    }
+    List<Indicator<Num>> getNumIndicators();
 
-    default List<Indicator<Num>> getNumIndicators()
-    {
-        return List.of();
-    }
+    Optional<Integer> getUnstablePeriodLength();
 
-    default Optional<StopLossLevelProvider> getStopLossLevelProvider()
-    {
-        return Optional.empty();
-    }
+    Optional<StopLossLevelProvider> getStopLossLevelProvider();
 }

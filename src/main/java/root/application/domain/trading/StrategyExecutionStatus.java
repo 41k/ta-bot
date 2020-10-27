@@ -1,4 +1,4 @@
-package root.application.domain.strategyexecution;
+package root.application.domain.trading;
 
 public enum StrategyExecutionStatus
 {

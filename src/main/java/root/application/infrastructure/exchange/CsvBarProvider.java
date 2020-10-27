@@ -4,7 +4,6 @@ import com.opencsv.CSVReader;
 import lombok.extern.slf4j.Slf4j;
 import org.ta4j.core.Bar;
 import org.ta4j.core.BaseBar;
-import root.application.application.BarProvider;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -18,9 +17,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
-public class CsvBarProvider implements BarProvider
+public class CsvBarProvider
 {
-    @Override
     public List<Bar> getBars()
     {
         List<Bar> bars = new ArrayList<>();

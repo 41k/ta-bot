@@ -25,17 +25,16 @@ public class RsiStrategy1Factory extends AbstractStrategyFactory
     private final ClosePriceIndicator closePriceIndicator;
     private final RSIIndicator rsiIndicator;
     private final RSILevelIndicator rsiLevel30Indicator;
-    private final List<Indicator<Num>> numIndicators;
 
-    public RsiStrategy1Factory(String strategyId, String exchangeId)
+    public RsiStrategy1Factory()
     {
-        super(strategyId, exchangeId);
+        super("RSI#1");
         this.closePriceIndicator = new ClosePriceIndicator(series);
         this.rsiIndicator = new RSIIndicator(closePriceIndicator, 12);
         this.rsiLevel30Indicator = new RSILevelIndicator(series, series.numOf(30));
-        numIndicators = List.of(
+        numIndicators.addAll(List.of(
                 rsiIndicator, rsiLevel30Indicator
-        );
+        ));
     }
 
     @Override
@@ -50,12 +49,6 @@ public class RsiStrategy1Factory extends AbstractStrategyFactory
                 new CrossedUpIndicatorRule(rsiIndicator, rsiLevel30Indicator);
 
         return new BaseStrategy(strategyId, entryRule, exitRule);
-    }
-
-    @Override
-    public List<Indicator<Num>> getNumIndicators()
-    {
-        return numIndicators;
     }
 }
 

@@ -21,7 +21,7 @@ public class TradeHistoryItemBuilder
     private static final int DEFAULT_N_TICKS_BEFORE_TRADE = 20;
     private static final int DEFAULT_N_TICKS_AFTER_TRADE = 20;
 
-    public TradeHistoryItem build(Trade trade, StrategyFactory strategyFactory)
+    public TradeHistoryItem build(Trade trade, StrategyFactory strategyFactory, String exchangeId)
     {
         var ticksBeforeTrade = getTicksBeforeTrade(trade, strategyFactory);
         var ticksDuringTrade = getTicksDuringTrade(trade, strategyFactory);
@@ -33,7 +33,7 @@ public class TradeHistoryItemBuilder
         var exitTimestamp = getExitTimestamp(ticksDuringTrade);
         return TradeHistoryItem.builder()
                 .strategyId(strategyFactory.getStrategyId())
-                .exchangeId(strategyFactory.getExchangeId())
+                .exchangeId(exchangeId)
                 .entryTimestamp(entryTimestamp)
                 .exitTimestamp(exitTimestamp)
                 .profit(trade.getProfit().doubleValue())
