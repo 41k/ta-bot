@@ -1,3 +1,4 @@
+// https://fontawesome.com/icons?s=solid&m=free
 import {
   faUser,
   faSort,
@@ -34,6 +35,13 @@ import {
   faTasks,
   // jhipster-needle-add-icon-import
   faHome,
+  // Application icons
+  faChartLine,
+  faRetweet,
+  faArrowUp,
+  faArrowDown,
+  faWallet,
+  faFilter
 } from '@fortawesome/free-solid-svg-icons';
 
 export const fontAwesomeIcons = [
@@ -72,4 +80,11 @@ export const fontAwesomeIcons = [
   faTrashAlt,
   // jhipster-needle-add-icon-import
   faAsterisk,
+  // Application icons
+  faChartLine,
+  faRetweet,
+  faArrowUp,
+  faArrowDown,
+  faWallet,
+  faFilter
 ];

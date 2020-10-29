@@ -19,14 +19,14 @@ import static java.util.stream.Collectors.toMap;
 @Configuration
 public class ApplicationConfiguration
 {
-    @Bean
-    public Map<String, ExchangeGateway> exchangeGatewaysStore(BarRepository barRepository)
-    {
-        var exchangeGateways = List.of(
-            new StubExchangeGateway(barRepository)
-        );
-        return exchangeGateways.stream().collect(toMap(ExchangeGateway::getExchangeId, identity()));
-    }
+//    @Bean
+//    public Map<String, ExchangeGateway> exchangeGatewaysStore(BarRepository barRepository)
+//    {
+//        var exchangeGateways = List.of(
+//            new StubExchangeGateway(barRepository)
+//        );
+//        return exchangeGateways.stream().collect(toMap(ExchangeGateway::getExchangeId, identity()));
+//    }
 
     @Bean
     public Map<String, StrategyFactory> strategyFactoriesStore()

@@ -1,9 +1,10 @@
 {
   "global": {
-    "title": "Tabot",
+    "title": "TA-B0T",
     "browsehappy": "Ваш браузер <strong>устарел</strong>. Пожалуйста <a href=\"http://browsehappy.com/?locale=ru\">обновите ваш браузер</a>.",
     "menu": {
       "home": "Главная",
+      "dashboard": "Обзор",
       "jhipster-needle-menu-add-element": "JHipster will add additional menu entries here (do not translate!)",
       "entities": {
         "main": "Сущности",

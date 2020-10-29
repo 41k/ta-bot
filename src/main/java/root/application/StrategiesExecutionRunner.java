@@ -4,20 +4,19 @@ import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.stereotype.Component;
-import root.application.application.QueryProcessor;
 import root.application.domain.ExchangeGateway;
 import root.application.domain.report.TradeHistoryItem;
 import root.application.domain.report.TradeHistoryItemRepository;
 import root.application.domain.strategy.StrategyFactory;
 import root.application.domain.trading.StrategiesExecutor;
+import root.application.infrastructure.persistence.HistoryDataProvider;
 
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 // NOTE: Remove tabot db before launch
-@Component
+//@Component
 @Slf4j
 @RequiredArgsConstructor
 public class StrategiesExecutionRunner implements CommandLineRunner
@@ -26,7 +25,7 @@ public class StrategiesExecutionRunner implements CommandLineRunner
     private final Map<String, StrategyFactory> strategyFactoriesStore;
     private final Map<String, StrategiesExecutor> strategyExecutorsStore;
     private final TradeHistoryItemRepository tradeHistoryItemRepository;
-    private final QueryProcessor queryProcessor;
+    private final HistoryDataProvider historyDataProvider;
 
     @Override
     public void run(String... args)
@@ -50,7 +49,7 @@ public class StrategiesExecutionRunner implements CommandLineRunner
     {
         TimeUnit.SECONDS.sleep(120);
 
-        var trades = queryProcessor.findAllTrades().collectList().block();
+        var trades = historyDataProvider.findAllTrades().collectList().block();
         System.out.println("----------------------------------------");
         System.out.println("Total profit: " + calculateTotalProfit(trades));
         System.out.println("N trades: " + trades.size());

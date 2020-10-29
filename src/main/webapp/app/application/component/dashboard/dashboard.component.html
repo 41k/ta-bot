@@ -1,0 +1,53 @@
+<div class="input-group mb-4">
+    <div class="input-group-prepend">
+        <span class="input-group-text">From</span>
+    </div>
+    <input type="datetime-local" class="form-control" name="from" [(ngModel)]="fromTime" (ngModelChange)="handleTimeRangeUpdate()" required/>
+
+    <div class="input-group-append">
+        <span class="input-group-text">To</span>
+    </div>
+    <input type="datetime-local" class="form-control" name="to" [(ngModel)]="toTime" (ngModelChange)="handleTimeRangeUpdate()" required/>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-3">
+        <h1>
+            <fa-icon icon="retweet"></fa-icon>
+            <span>{{nTrades}}</span>
+        </h1>
+    </div>
+    <div class="col-md-3">
+        <h1>
+            <fa-icon icon="arrow-up"></fa-icon>
+            <span>{{nProfitableTrades}}</span>
+        </h1>
+    </div>
+    <div class="col-md-3">
+        <h1>
+            <fa-icon icon="arrow-down"></fa-icon>
+            <span>{{nUnprofitableTrades}}</span>
+        </h1>
+    </div>
+    <div class="col-md-3">
+        <h1>
+            <fa-icon icon="wallet"></fa-icon>
+            <span>{{totalProfit}}</span>
+        </h1>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-sm-12">
+        <apx-chart
+            [series]="chartOptions.series"
+            [chart]="chartOptions.chart"
+            [xaxis]="chartOptions.xaxis"
+            [stroke]="chartOptions.stroke"
+            [dataLabels]="chartOptions.dataLabels"
+            [yaxis]="chartOptions.yaxis"
+            [labels]="chartOptions.labels"
+            [legend]="chartOptions.legend"
+        ></apx-chart>
+    </div>
+</div>
