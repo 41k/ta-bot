@@ -29,6 +29,10 @@ const LAYOUT_ROUTES = [navbarRoute, ...errorRoute];
           path: 'dashboard',
           loadChildren: () => import('./application/component/dashboard/dashboard.module').then(m => m.DashboardModule),
         },
+        {
+          path: 'history',
+          loadChildren: () => import('./application/component/history/history.module').then(m => m.HistoryModule),
+        },
         ...LAYOUT_ROUTES,
       ],
       { enableTracing: DEBUG_INFO_ENABLED }

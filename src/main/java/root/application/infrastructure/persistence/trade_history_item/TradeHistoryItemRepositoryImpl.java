@@ -2,11 +2,14 @@ package root.application.infrastructure.persistence.trade_history_item;
 
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
+import root.application.application.ApplicationLevelTradeHistoryItemRepository;
 import root.application.domain.report.TradeHistoryItem;
 import root.application.domain.report.TradeHistoryItemRepository;
 
+import java.util.List;
+
 @RequiredArgsConstructor
-public class TradeHistoryItemRepositoryImpl implements TradeHistoryItemRepository
+public class TradeHistoryItemRepositoryImpl implements TradeHistoryItemRepository, ApplicationLevelTradeHistoryItemRepository
 {
     private final TradeHistoryItemMapper mapper;
     private final TradeHistoryItemDbEntryR2dbcRepository r2dbcRepository;
@@ -19,5 +22,37 @@ public class TradeHistoryItemRepositoryImpl implements TradeHistoryItemRepositor
             .flatMap(r2dbcRepository::save)
             .subscribe();
         return tradeHistoryItem;
+    }
+
+    public List<TradeHistoryItem> findTrades()
+    {
+        return r2dbcRepository.findAll()
+            .map(mapper::toDomainObject)
+            .collectList()
+            .block();
+    }
+
+    public List<TradeHistoryItem> findTrades(Long fromTimestamp, Long toTimestamp)
+    {
+        return r2dbcRepository.findAllInRange(fromTimestamp, toTimestamp)
+            .map(mapper::toDomainObject)
+            .collectList()
+            .block();
+    }
+
+    public List<TradeHistoryItem> findTrades(Long fromTimestamp, Long toTimestamp, String exchangeId)
+    {
+        return r2dbcRepository.findAllInRangeByExchangeId(fromTimestamp, toTimestamp, exchangeId)
+            .map(mapper::toDomainObject)
+            .collectList()
+            .block();
+    }
+
+    public List<TradeHistoryItem> findTrades(Long fromTimestamp, Long toTimestamp, String exchangeId, String strategyId)
+    {
+        return r2dbcRepository.findAllInRangeByExchangeIdAndStrategyId(fromTimestamp, toTimestamp, exchangeId, strategyId)
+            .map(mapper::toDomainObject)
+            .collectList()
+            .block();
     }
 }

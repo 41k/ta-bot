@@ -83,6 +83,8 @@ public class SecurityConfiguration {
             .pathMatchers("/").permitAll()
             .pathMatchers("/*.*").permitAll()
             .pathMatchers("/api/history/trades").permitAll()
+            .pathMatchers("/api/history/exchanges").permitAll()
+            .pathMatchers("/api/history/strategies").permitAll()
             .pathMatchers("/api/register").permitAll()
             .pathMatchers("/api/activate").permitAll()
             .pathMatchers("/api/authenticate").permitAll()

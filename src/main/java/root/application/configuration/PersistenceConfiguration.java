@@ -5,9 +5,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.r2dbc.repository.config.EnableR2dbcRepositories;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
+import root.application.application.ApplicationLevelTradeHistoryItemRepository;
 import root.application.domain.report.BarRepository;
 import root.application.domain.report.TradeHistoryItemRepository;
-import root.application.infrastructure.persistence.HistoryDataProvider;
 import root.application.infrastructure.persistence.bar.BarDbEntryR2dbcRepository;
 import root.application.infrastructure.persistence.bar.BarRepositoryImpl;
 import root.application.infrastructure.persistence.trade_history_item.TradeHistoryItemDbEntryR2dbcRepository;
@@ -32,14 +32,14 @@ public class PersistenceConfiguration
     }
 
     @Bean
-    public BarRepository barRepository(BarDbEntryR2dbcRepository barDbEntryR2dbcRepository)
+    public ApplicationLevelTradeHistoryItemRepository applicationLevelTradeHistoryItemRepository(TradeHistoryItemMapper tradeHistoryItemMapper, TradeHistoryItemDbEntryR2dbcRepository tradeHistoryItemDbEntryR2DbcRepository)
     {
-        return new BarRepositoryImpl(barDbEntryR2dbcRepository);
+        return new TradeHistoryItemRepositoryImpl(tradeHistoryItemMapper, tradeHistoryItemDbEntryR2DbcRepository);
     }
 
     @Bean
-    public HistoryDataProvider historyDataProvider(TradeHistoryItemMapper tradeHistoryItemMapper, TradeHistoryItemDbEntryR2dbcRepository tradeHistoryItemDbEntryR2DbcRepository, BarDbEntryR2dbcRepository barDbEntryR2dbcRepository)
+    public BarRepository barRepository(BarDbEntryR2dbcRepository barDbEntryR2dbcRepository)
     {
-        return new HistoryDataProvider(tradeHistoryItemMapper, tradeHistoryItemDbEntryR2DbcRepository, barDbEntryR2dbcRepository);
+        return new BarRepositoryImpl(barDbEntryR2dbcRepository);
     }
 }

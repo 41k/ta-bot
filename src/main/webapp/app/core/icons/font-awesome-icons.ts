@@ -41,7 +41,10 @@ import {
   faArrowUp,
   faArrowDown,
   faWallet,
-  faFilter
+  faFilter,
+  faHistory,
+  faExchangeAlt,
+  faRandom,
 } from '@fortawesome/free-solid-svg-icons';
 
 export const fontAwesomeIcons = [
@@ -86,5 +89,8 @@ export const fontAwesomeIcons = [
   faArrowUp,
   faArrowDown,
   faWallet,
-  faFilter
+  faFilter,
+  faHistory,
+  faExchangeAlt,
+  faRandom,
 ];

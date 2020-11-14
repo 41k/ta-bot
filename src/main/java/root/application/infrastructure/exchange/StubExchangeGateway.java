@@ -25,7 +25,7 @@ public class StubExchangeGateway implements ExchangeGateway
         this.barRepository = barRepository;
         this.barProvider = new CsvBarProvider();
         this.barStreamConsumers = new ArrayList<>();
-        run();
+        //run();
     }
 
     @Override

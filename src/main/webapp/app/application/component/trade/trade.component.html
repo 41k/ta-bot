@@ -1,0 +1,46 @@
+<div class="modal-header">
+    <div class="badge float-left" [ngClass]="trade.profit>0?'badge-success':'badge-danger'">
+        {{trade.profit > 0 ? '+' : ''}}{{trade.profit}}
+    </div>
+    <div class="float-right">
+        <div class="badge badge-primary">
+            <fa-icon icon="exchange-alt"></fa-icon>
+            <span>{{trade.exchangeId}}</span>
+        </div>
+        <div class="badge badge-primary">
+            <fa-icon icon="random"></fa-icon>
+            <span>{{trade.strategyId}}</span>
+        </div>
+    </div>
+</div>
+
+<div class="modal-body">
+    <div class="row">
+        <div class="col-md-12">
+            <apx-chart
+                [series]="mainChartOptions.series"
+                [annotations]="mainChartOptions.annotations"
+                [chart]="mainChartOptions.chart"
+                [title]="mainChartOptions.title"
+                [stroke]="mainChartOptions.stroke"
+                [xaxis]="mainChartOptions.xaxis"
+                [yaxis]="mainChartOptions.yaxis"
+                [plotOptions]="mainChartOptions.plotOptions"
+            ></apx-chart>
+        </div>
+        <div class="col-md-12" *ngFor="let chartOptions of additionalChartsOptions">
+            <apx-chart
+                [series]="chartOptions.series"
+                [annotations]="chartOptions.annotations"
+                [chart]="chartOptions.chart"
+                [dataLabels]="chartOptions.dataLabels"
+                [stroke]="chartOptions.stroke"
+                [title]="chartOptions.title"
+                [labels]="chartOptions.labels"
+                [xaxis]="chartOptions.xaxis"
+                [yaxis]="chartOptions.yaxis"
+                [grid]="chartOptions.grid"
+            ></apx-chart>
+        </div>
+    </div>
+</div>
