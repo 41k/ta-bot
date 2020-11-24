@@ -30,6 +30,10 @@ const LAYOUT_ROUTES = [navbarRoute, ...errorRoute];
           loadChildren: () => import('./application/component/dashboard/dashboard.module').then(m => m.DashboardModule),
         },
         {
+          path: 'strategies',
+          loadChildren: () => import('./application/component/strategies/strategies.module').then(m => m.StrategiesModule),
+        },
+        {
           path: 'history',
           loadChildren: () => import('./application/component/history/history.module').then(m => m.HistoryModule),
         },

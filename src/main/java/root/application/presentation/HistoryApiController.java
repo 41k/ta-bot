@@ -21,26 +21,26 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/history")
 @RequiredArgsConstructor
-public class HistoryController
+public class HistoryApiController
 {
     private final HistoryService historyService;
 
     @GetMapping("/trades")
     public Mono<ResponseEntity<List<TradeHistoryItem>>> getTradesHistory(@RequestParam Long fromTimestamp,
                                                                          @RequestParam Long toTimestamp,
-                                                                         @RequestParam(required = false) String exchangeId,
+                                                                         @RequestParam(required = false) String exchangeGatewayId,
                                                                          @RequestParam(required = false) String strategyId,
                                                                          ServerHttpRequest request,
                                                                          Pageable pageable)
     {
-        var trades = historyService.searchForTrades(fromTimestamp, toTimestamp, exchangeId, strategyId);
+        var trades = historyService.searchForTrades(fromTimestamp, toTimestamp, exchangeGatewayId, strategyId);
         return Mono.just(1000)
             .map(total -> new PageImpl<>(new ArrayList<>(), pageable, total))
             .map(page -> PaginationUtil.generatePaginationHttpHeaders(UriComponentsBuilder.fromHttpRequest(request), page))
             .map(headers -> ResponseEntity.ok().headers(headers).body(trades));
     }
 
-    @GetMapping("/exchanges")
+    @GetMapping("/exchange-gateways")
     public List<String> getExchanges(@RequestParam Long fromTimestamp,
                                      @RequestParam Long toTimestamp)
     {
@@ -50,8 +50,8 @@ public class HistoryController
     @GetMapping("/strategies")
     public List<String> getStrategies(@RequestParam Long fromTimestamp,
                                       @RequestParam Long toTimestamp,
-                                      @RequestParam String exchangeId)
+                                      @RequestParam String exchangeGatewayId)
     {
-        return historyService.searchForStrategies(fromTimestamp, toTimestamp, exchangeId);
+        return historyService.searchForStrategies(fromTimestamp, toTimestamp, exchangeGatewayId);
     }
 }

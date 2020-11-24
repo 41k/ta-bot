@@ -25,7 +25,7 @@ public class TradeHistoryItemDbEntry implements Serializable
     @NotNull
     private String strategyId;
     @NotNull
-    private String exchangeId;
+    private String exchangeGatewayId;
     @NotNull
     private Long entryTimestamp;
     @NotNull

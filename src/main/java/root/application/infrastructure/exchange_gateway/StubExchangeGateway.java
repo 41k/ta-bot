@@ -1,4 +1,4 @@
-package root.application.infrastructure.exchange;
+package root.application.infrastructure.exchange_gateway;
 
 import lombok.extern.slf4j.Slf4j;
 import org.ta4j.core.Bar;
@@ -14,7 +14,7 @@ import java.util.function.Consumer;
 @Slf4j
 public class StubExchangeGateway implements ExchangeGateway
 {
-    private static final String EXCHANGE_ID = "stub-exchange";
+    private static final String EXCHANGE_GATEWAY_ID = "stub-exchange";
 
     private final BarRepository barRepository;
     private final CsvBarProvider barProvider;
@@ -29,9 +29,9 @@ public class StubExchangeGateway implements ExchangeGateway
     }
 
     @Override
-    public String getExchangeId()
+    public String getId()
     {
-        return EXCHANGE_ID;
+        return EXCHANGE_GATEWAY_ID;
     }
 
     @Override
@@ -54,7 +54,7 @@ public class StubExchangeGateway implements ExchangeGateway
     {
         Flux.fromIterable(barProvider.getBars())
             .delaySubscription(Duration.ofSeconds(60))
-            .map(bar -> barRepository.save(bar, EXCHANGE_ID))
+            .map(bar -> barRepository.save(bar, EXCHANGE_GATEWAY_ID))
             .map(this::processBar)
             .subscribe();
     }

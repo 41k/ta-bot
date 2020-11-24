@@ -6,7 +6,7 @@ import { createRequestOption, Pagination } from 'app/shared/util/request-util';
 import { SERVER_API_URL } from 'app/app.constants';
 import { Trade } from '../model/trade.model';
 
-export interface GetExchangesRequest {
+export interface GetExchangeGatewaysRequest {
   fromTimestamp: number;
   toTimestamp: number;
 }
@@ -14,13 +14,13 @@ export interface GetExchangesRequest {
 export interface GetStrategiesRequest {
   fromTimestamp: number;
   toTimestamp: number;
-  exchangeId: string;
+  exchangeGatewayId: string;
 }
 
 export interface GetTradesRequest extends Pagination {
   fromTimestamp: number;
   toTimestamp: number;
-  exchangeId?: string;
+  exchangeGatewayId?: string;
   strategyId?: string;
 }
 
@@ -32,9 +32,9 @@ export class HistoryApiClient {
     this.historyApiUrl = SERVER_API_URL + '/api/history';
   }
 
-  getExchanges(request: GetExchangesRequest): Observable<HttpResponse<string[]>> {
+  getExchangeGateways(request: GetExchangeGatewaysRequest): Observable<HttpResponse<string[]>> {
     const params: HttpParams = createRequestOption(request);
-    const requestURL = this.historyApiUrl + '/exchanges';
+    const requestURL = this.historyApiUrl + '/exchange-gateways';
     return this.http.get<string[]>(requestURL, {
       params,
       observe: 'response',

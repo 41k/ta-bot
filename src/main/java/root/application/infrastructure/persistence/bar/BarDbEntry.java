@@ -35,7 +35,7 @@ public class BarDbEntry implements Serializable
     @Id
     private Long id;
     @NotNull
-    private String exchangeId;
+    private String exchangeGatewayId;
     @NotNull
     private Long duration;
     @NotNull
@@ -59,10 +59,10 @@ public class BarDbEntry implements Serializable
         return new BaseBar(barDuration, zonedBarTime, open, high, low, close, volume, AMOUNT, TRADES, NUM_FUNCTION);
     }
 
-    public static BarDbEntry fromDomainObject(Bar bar, String exchangeId)
+    public static BarDbEntry fromDomainObject(Bar bar, String exchangeGatewayId)
     {
         return BarDbEntry.builder()
-            .exchangeId(exchangeId)
+            .exchangeGatewayId(exchangeGatewayId)
             .duration(bar.getTimePeriod().toMillis())
             .timestamp(bar.getEndTime().toInstant().toEpochMilli())
             .open(bar.getOpenPrice().doubleValue())

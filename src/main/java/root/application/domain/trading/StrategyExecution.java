@@ -1,6 +1,6 @@
 package root.application.domain.trading;
 
-import lombok.Getter;
+import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.ta4j.core.*;
 import org.ta4j.core.num.Num;
@@ -24,7 +24,6 @@ public class StrategyExecution
     private final TradingRecord tradingRecord;
     private final TradeHistoryItemBuilder tradeHistoryItemBuilder;
     private final Num amount;
-    @Getter
     private volatile StrategyExecutionStatus status;
 
     public StrategyExecution(StrategyFactory strategyFactory, ExchangeGateway exchangeGateway, double amount)
@@ -72,11 +71,16 @@ public class StrategyExecution
         }
     }
 
-    public boolean isActive()
+    public synchronized boolean isActive()
     {
         return status.equals(WAITING_FOR_ENTRY) ||
             status.equals(WAITING_FOR_EXIT) ||
             status.equals(STOPPING);
+    }
+
+    public synchronized State getState()
+    {
+        return new State(strategyId, status);
     }
 
     private boolean shouldBuy(int currentBarIndex)
@@ -127,12 +131,19 @@ public class StrategyExecution
     private TradeHistoryItem getLastTrade()
     {
         var lastTrade = tradingRecord.getLastTrade();
-        var exchangeId = exchangeGateway.getExchangeId();
-        return tradeHistoryItemBuilder.build(lastTrade, strategyFactory, exchangeId);
+        var exchangeGatewayId = exchangeGateway.getId();
+        return tradeHistoryItemBuilder.build(lastTrade, strategyFactory, exchangeGatewayId);
     }
 
     private void logExecutionStoppage()
     {
         log.info("Execution for strategy [{}] has been stopped successfully.", strategyId);
+    }
+
+    @Value
+    public static class State
+    {
+        String strategyId;
+        StrategyExecutionStatus status;
     }
 }

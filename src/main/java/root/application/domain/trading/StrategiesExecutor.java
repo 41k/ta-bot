@@ -6,14 +6,13 @@ import root.application.domain.ExchangeGateway;
 import root.application.domain.report.TradeHistoryItemRepository;
 import root.application.domain.strategy.StrategyFactory;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 import static java.lang.Boolean.FALSE;
 import static java.lang.String.format;
 import static java.util.Objects.isNull;
 import static java.util.Optional.ofNullable;
+import static java.util.stream.Collectors.toList;
 
 @Slf4j
 public class StrategiesExecutor
@@ -21,7 +20,7 @@ public class StrategiesExecutor
     private final Map<String, StrategyFactory> strategyIdToFactoryMap;
     private final Map<String, StrategyExecution> strategyIdToExecutionMap;
     private final ExchangeGateway exchangeGateway;
-    private final String exchangeId;
+    private final String exchangeGatewayId;
     private final TradeHistoryItemRepository tradeHistoryItemRepository;
 
     public StrategiesExecutor(Map<String, StrategyFactory> strategyIdToFactoryMap,
@@ -31,7 +30,7 @@ public class StrategiesExecutor
         this.strategyIdToFactoryMap = strategyIdToFactoryMap;
         this.strategyIdToExecutionMap = new HashMap<>();
         this.exchangeGateway = exchangeGateway;
-        this.exchangeId = exchangeGateway.getExchangeId();
+        this.exchangeGatewayId = exchangeGateway.getId();
         this.tradeHistoryItemRepository = tradeHistoryItemRepository;
         exchangeGateway.subscribeToBarStream(this::processBar);
     }
@@ -40,13 +39,14 @@ public class StrategiesExecutor
     {
         if (isActiveStrategy(strategyId))
         {
-            throw new IllegalStateException(format("Strategy [%s] is already active for exchange [%s].", strategyId, exchangeId));
+            throw new IllegalStateException(
+                format("Strategy [%s] is already active for exchange gateway [%s].", strategyId, exchangeGatewayId));
         }
         var strategyFactory = ofNullable(strategyIdToFactoryMap.get(strategyId)).orElseThrow(() ->
             new IllegalStateException(format("Strategy factory for strategyId [%s] is not found.", strategyId)));
         var strategyExecution = new StrategyExecution(strategyFactory, exchangeGateway, amount);
         strategyIdToExecutionMap.put(strategyId, strategyExecution);
-        log.info("Strategy [{}] for exchange [{}] has been activated successfully.", strategyId, exchangeId);
+        log.info("Strategy [{}] for exchange gateway [{}] has been activated successfully.", strategyId, exchangeGatewayId);
     }
 
     public void deactivateStrategy(String strategyId)
@@ -58,7 +58,29 @@ public class StrategiesExecutor
             return;
         }
         strategyExecution.stop();
-        log.info("Strategy [{}] for exchange [{}] has been deactivated successfully.", strategyId, exchangeId);
+        log.info("Strategy [{}] for exchange gateway [{}] has been deactivated successfully.", strategyId, exchangeGatewayId);
+    }
+
+    public List<StrategyExecution.State> getStrategyExecutions()
+    {
+        return strategyIdToFactoryMap.keySet().stream()
+            .map(strategyIdToExecutionMap::get)
+            .filter(Objects::nonNull)
+            .filter(StrategyExecution::isActive)
+            .map(StrategyExecution::getState)
+            .collect(toList());
+    }
+
+    public List<String> getInactiveStrategyIds()
+    {
+        var activeStrategyIds = new HashSet<>(
+            getStrategyExecutions().stream()
+                .map(StrategyExecution.State::getStrategyId)
+                .collect(toList()));
+        return strategyIdToFactoryMap.keySet().stream()
+            .filter(strategyId -> !activeStrategyIds.contains(strategyId))
+            .collect(toList());
+
     }
 
     private void processBar(Bar bar)

@@ -10,9 +10,9 @@ public class BarRepositoryImpl implements BarRepository
     private final BarDbEntryR2dbcRepository r2dbcRepository;
 
     @Override
-    public Bar save(Bar bar, String exchangeId)
+    public Bar save(Bar bar, String exchangeGatewayId)
     {
-         r2dbcRepository.save(BarDbEntry.fromDomainObject(bar, exchangeId)).subscribe();
+         r2dbcRepository.save(BarDbEntry.fromDomainObject(bar, exchangeGatewayId)).subscribe();
          return bar;
     }
 }

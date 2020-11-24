@@ -10,7 +10,7 @@ public interface ApplicationLevelTradeHistoryItemRepository {
 
     List<TradeHistoryItem> findTrades(Long fromTimestamp, Long toTimestamp);
 
-    List<TradeHistoryItem> findTrades(Long fromTimestamp, Long toTimestamp, String exchangeId);
+    List<TradeHistoryItem> findTrades(Long fromTimestamp, Long toTimestamp, String exchangeGatewayId);
 
-    List<TradeHistoryItem> findTrades(Long fromTimestamp, Long toTimestamp, String exchangeId, String strategyId);
+    List<TradeHistoryItem> findTrades(Long fromTimestamp, Long toTimestamp, String exchangeGatewayId, String strategyId);
 }

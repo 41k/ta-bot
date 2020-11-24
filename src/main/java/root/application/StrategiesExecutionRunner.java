@@ -21,7 +21,7 @@ import static java.util.Optional.ofNullable;
 @RequiredArgsConstructor
 public class StrategiesExecutionRunner implements CommandLineRunner
 {
-    private final static String EXCHANGE_ID = "stub-exchange";
+    private final static String EXCHANGE_GATEWAY_ID = "stub-exchange";
     private final static List<String> STRATEGY_IDS = List.of("MACD#1", "RSI#1", "SMA#5");
     private final static double AMOUNT_TO_BUY = 1d;
     private final static long FROM_TIMESTAMP = 1597901099999L;
@@ -39,7 +39,7 @@ public class StrategiesExecutionRunner implements CommandLineRunner
 
     private void runStrategies()
     {
-        ofNullable(strategyExecutorsStore.get(EXCHANGE_ID)).ifPresent(strategiesExecutor ->
+        ofNullable(strategyExecutorsStore.get(EXCHANGE_GATEWAY_ID)).ifPresent(strategiesExecutor ->
             STRATEGY_IDS.forEach(strategyId -> strategiesExecutor.activateStrategy(strategyId, AMOUNT_TO_BUY)));
     }
 
@@ -49,7 +49,7 @@ public class StrategiesExecutionRunner implements CommandLineRunner
         TimeUnit.SECONDS.sleep(120);
 
         STRATEGY_IDS.forEach(strategyId -> {
-            var trades = historyService.searchForTrades(FROM_TIMESTAMP, TO_TIMESTAMP, EXCHANGE_ID, strategyId);
+            var trades = historyService.searchForTrades(FROM_TIMESTAMP, TO_TIMESTAMP, EXCHANGE_GATEWAY_ID, strategyId);
             System.out.println();
             System.out.println("----------------------------------------");
             System.out.println("Strategy Id: " + strategyId);

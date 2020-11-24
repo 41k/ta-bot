@@ -14,13 +14,15 @@ public interface TradeHistoryItemDbEntryR2dbcRepository extends R2dbcRepository<
     @Query("SELECT * FROM trade_history_item WHERE " +
             "entry_timestamp >= :fromTimestamp AND " +
             "exit_timestamp <= :toTimestamp AND " +
-            "exchange_id = :exchangeId")
-    Flux<TradeHistoryItemDbEntry> findAllInRangeByExchangeId(Long fromTimestamp, Long toTimestamp, String exchangeId);
+            "exchange_gateway_id = :exchangeGatewayId")
+    Flux<TradeHistoryItemDbEntry> findAllInRangeByExchangeGatewayId(
+        Long fromTimestamp, Long toTimestamp, String exchangeGatewayId);
 
     @Query("SELECT * FROM trade_history_item WHERE " +
             "entry_timestamp >= :fromTimestamp AND " +
             "exit_timestamp <= :toTimestamp AND " +
-            "exchange_id = :exchangeId AND strategy_id = :strategyId")
-    Flux<TradeHistoryItemDbEntry> findAllInRangeByExchangeIdAndStrategyId(
-        Long fromTimestamp, Long toTimestamp, String exchangeId, String strategyId);
+            "exchange_gateway_id = :exchangeGatewayId AND " +
+            "strategy_id = :strategyId")
+    Flux<TradeHistoryItemDbEntry> findAllInRangeByExchangeGatewayIdAndStrategyId(
+        Long fromTimestamp, Long toTimestamp, String exchangeGatewayId, String strategyId);
 }

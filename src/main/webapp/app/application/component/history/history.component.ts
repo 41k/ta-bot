@@ -23,8 +23,8 @@ export class HistoryComponent {
   fromTime = '';
   toTime = '';
 
-  exchanges!: string[];
-  selectedExchange!: string;
+  exchangeGateways!: string[];
+  selectedExchangeGateway!: string;
 
   strategies!: string[];
   selectedStrategy!: string;
@@ -43,7 +43,7 @@ export class HistoryComponent {
 
   constructor(private datePipe: DatePipe, private historyApiClient: HistoryApiClient, private modalService: NgbModal) {
     this.initTimeRangeFilter();
-    this.loadExchanges();
+    this.loadExchangeGateways();
     this.chartOptions = this.getInitialChartOptions();
   }
 
@@ -53,22 +53,22 @@ export class HistoryComponent {
     modalRef.componentInstance.initialize(trade);
   }
 
-  loadExchanges(): void {
+  loadExchangeGateways(): void {
     this.strategies = [];
     this.trades = new Map<number, Trade>();
     this.historyApiClient
-      .getExchanges({
+      .getExchangeGateways({
         fromTimestamp: new Date(this.fromTime).getTime(),
         toTimestamp: new Date(this.toTime).getTime(),
       })
       .subscribe((response: HttpResponse<string[]>) => {
-        const exchanges = response.body;
-        if (exchanges && exchanges.length > 0) {
-          this.exchanges = exchanges;
-          this.selectedExchange = exchanges[0];
+        const exchangeGateways = response.body;
+        if (exchangeGateways && exchangeGateways.length > 0) {
+          this.exchangeGateways = exchangeGateways;
+          this.selectedExchangeGateway = exchangeGateways[0];
           this.loadStrategies();
         } else {
-          this.exchanges = [];
+          this.exchangeGateways = [];
         }
       });
   }
@@ -79,7 +79,7 @@ export class HistoryComponent {
       .getStrategies({
         fromTimestamp: new Date(this.fromTime).getTime(),
         toTimestamp: new Date(this.toTime).getTime(),
-        exchangeId: this.selectedExchange,
+        exchangeGatewayId: this.selectedExchangeGateway,
       })
       .subscribe((response: HttpResponse<string[]>) => {
         const strategies = response.body;
@@ -98,7 +98,7 @@ export class HistoryComponent {
       .getTrades({
         fromTimestamp: new Date(this.fromTime).getTime(),
         toTimestamp: new Date(this.toTime).getTime(),
-        exchangeId: this.selectedExchange,
+        exchangeGatewayId: this.selectedExchangeGateway,
         strategyId: this.selectedStrategy,
         page: 0,
         size: 0,

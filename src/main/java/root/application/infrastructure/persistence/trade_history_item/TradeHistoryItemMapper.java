@@ -20,7 +20,7 @@ public class TradeHistoryItemMapper
     {
         return TradeHistoryItem.builder()
             .strategyId(dbEntry.getStrategyId())
-            .exchangeId(dbEntry.getExchangeId())
+            .exchangeGatewayId(dbEntry.getExchangeGatewayId())
             .entryTimestamp(dbEntry.getEntryTimestamp())
             .exitTimestamp(dbEntry.getExitTimestamp())
             .profit(dbEntry.getProfit())
@@ -32,7 +32,7 @@ public class TradeHistoryItemMapper
     {
         return TradeHistoryItemDbEntry.builder()
             .strategyId(domainObject.getStrategyId())
-            .exchangeId(domainObject.getExchangeId())
+            .exchangeGatewayId(domainObject.getExchangeGatewayId())
             .entryTimestamp(domainObject.getEntryTimestamp())
             .exitTimestamp(domainObject.getExitTimestamp())
             .profit(domainObject.getProfit())

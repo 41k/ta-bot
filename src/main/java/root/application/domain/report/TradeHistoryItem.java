@@ -13,7 +13,7 @@ public class TradeHistoryItem
     @NonNull
     String strategyId;
     @NonNull
-    String exchangeId;
+    String exchangeGatewayId;
     @NonNull
     Long entryTimestamp;
     @NonNull

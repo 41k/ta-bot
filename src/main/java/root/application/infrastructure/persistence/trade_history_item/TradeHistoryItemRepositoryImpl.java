@@ -40,17 +40,17 @@ public class TradeHistoryItemRepositoryImpl implements TradeHistoryItemRepositor
             .block();
     }
 
-    public List<TradeHistoryItem> findTrades(Long fromTimestamp, Long toTimestamp, String exchangeId)
+    public List<TradeHistoryItem> findTrades(Long fromTimestamp, Long toTimestamp, String exchangeGatewayId)
     {
-        return r2dbcRepository.findAllInRangeByExchangeId(fromTimestamp, toTimestamp, exchangeId)
+        return r2dbcRepository.findAllInRangeByExchangeGatewayId(fromTimestamp, toTimestamp, exchangeGatewayId)
             .map(mapper::toDomainObject)
             .collectList()
             .block();
     }
 
-    public List<TradeHistoryItem> findTrades(Long fromTimestamp, Long toTimestamp, String exchangeId, String strategyId)
+    public List<TradeHistoryItem> findTrades(Long fromTimestamp, Long toTimestamp, String exchangeGatewayId, String strategyId)
     {
-        return r2dbcRepository.findAllInRangeByExchangeIdAndStrategyId(fromTimestamp, toTimestamp, exchangeId, strategyId)
+        return r2dbcRepository.findAllInRangeByExchangeGatewayIdAndStrategyId(fromTimestamp, toTimestamp, exchangeGatewayId, strategyId)
             .map(mapper::toDomainObject)
             .collectList()
             .block();

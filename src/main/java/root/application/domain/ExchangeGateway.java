@@ -6,7 +6,7 @@ import java.util.function.Consumer;
 
 public interface ExchangeGateway
 {
-    String getExchangeId();
+    String getId();
 
     void subscribeToBarStream(Consumer<Bar> barConsumer);
 

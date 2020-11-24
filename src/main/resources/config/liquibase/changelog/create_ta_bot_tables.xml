@@ -15,7 +15,7 @@
             <column name="strategy_id" type="varchar(150)">
                 <constraints nullable="false"/>
             </column>
-            <column name="exchange_id" type="varchar(150)">
+            <column name="exchange_gateway_id" type="varchar(150)">
                 <constraints nullable="false"/>
             </column>
             <column name="entry_timestamp" type="bigint">
@@ -32,7 +32,7 @@
             </column>
         </createTable>
         <addUniqueConstraint
-            columnNames="strategy_id, exchange_id, entry_timestamp"
+            columnNames="strategy_id, exchange_gateway_id, entry_timestamp"
             constraintName="trade_history_item_uniqueness"
             tableName="trade_history_item"/>
 
@@ -40,7 +40,7 @@
             <column name="id" type="bigint" autoIncrement="true">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
-            <column name="exchange_id" type="varchar(150)">
+            <column name="exchange_gateway_id" type="varchar(150)">
                 <constraints nullable="false"/>
             </column>
             <column name="duration" type="bigint">
@@ -66,7 +66,7 @@
             </column>
         </createTable>
         <addUniqueConstraint
-            columnNames="exchange_id, duration, timestamp"
+            columnNames="exchange_gateway_id, duration, timestamp"
             constraintName="bar_uniqueness"
             tableName="bar"/>
 

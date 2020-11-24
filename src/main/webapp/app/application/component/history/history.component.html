@@ -4,7 +4,7 @@
             <div class="input-group-prepend">
                 <span class="input-group-text">From</span>
             </div>
-            <input type="datetime-local" class="form-control" name="from" [(ngModel)]="fromTime" (ngModelChange)="loadExchanges()" required/>
+            <input type="datetime-local" class="form-control" name="from" [(ngModel)]="fromTime" (ngModelChange)="loadExchangeGateways()" required/>
         </div>
     </div>
     <div class="col-md-6 mb-4">
@@ -12,17 +12,17 @@
             <div class="input-group-prepend">
                 <span class="input-group-text">To</span>
             </div>
-            <input type="datetime-local" class="form-control" name="to" [(ngModel)]="toTime" (ngModelChange)="loadExchanges()" required/>
+            <input type="datetime-local" class="form-control" name="to" [(ngModel)]="toTime" (ngModelChange)="loadExchangeGateways()" required/>
         </div>
     </div>
-    <div class="col-md-6 mb-4" *ngIf="exchanges && exchanges.length > 0">
+    <div class="col-md-6 mb-4" *ngIf="exchangeGateways && exchangeGateways.length > 0">
         <div class="input-group">
             <div class="input-group-prepend">
-                <span class="input-group-text">Exchange</span>
+                <span class="input-group-text">Exchange Gateway</span>
             </div>
-            <select class="custom-select" [(ngModel)]="selectedExchange" (change)="loadStrategies()">
-                <option *ngFor="let exchange of exchanges" [value]="exchange" [selected]="exchange==selectedExchange">
-                    {{exchange}}
+            <select class="custom-select" [(ngModel)]="selectedExchangeGateway" (change)="loadStrategies()">
+                <option *ngFor="let exchangeGateway of exchangeGateways" [value]="exchangeGateway" [selected]="exchangeGateway==selectedExchangeGateway">
+                    {{exchangeGateway}}
                 </option>
             </select>
         </div>

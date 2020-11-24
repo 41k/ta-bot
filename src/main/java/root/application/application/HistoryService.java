@@ -13,15 +13,15 @@ public class HistoryService
 {
     private final ApplicationLevelTradeHistoryItemRepository tradeHistoryItemRepository;
 
-    public List<TradeHistoryItem> searchForTrades(Long fromTimestamp, Long toTimestamp, String exchangeId, String strategyId)
+    public List<TradeHistoryItem> searchForTrades(Long fromTimestamp, Long toTimestamp, String exchangeGatewayId, String strategyId)
     {
-        if (nonNull(fromTimestamp) && nonNull(toTimestamp) && nonNull(exchangeId) && nonNull(strategyId))
+        if (nonNull(fromTimestamp) && nonNull(toTimestamp) && nonNull(exchangeGatewayId) && nonNull(strategyId))
         {
-            return tradeHistoryItemRepository.findTrades(fromTimestamp, toTimestamp, exchangeId, strategyId);
+            return tradeHistoryItemRepository.findTrades(fromTimestamp, toTimestamp, exchangeGatewayId, strategyId);
         }
-        else if (nonNull(fromTimestamp) && nonNull(toTimestamp) && nonNull(exchangeId))
+        else if (nonNull(fromTimestamp) && nonNull(toTimestamp) && nonNull(exchangeGatewayId))
         {
-            return tradeHistoryItemRepository.findTrades(fromTimestamp, toTimestamp, exchangeId);
+            return tradeHistoryItemRepository.findTrades(fromTimestamp, toTimestamp, exchangeGatewayId);
         }
         else if (nonNull(fromTimestamp) && nonNull(toTimestamp))
         {
@@ -42,14 +42,14 @@ public class HistoryService
     {
         return tradeHistoryItemRepository.findTrades(fromTimestamp, toTimestamp)
             .stream()
-            .map(TradeHistoryItem::getExchangeId)
+            .map(TradeHistoryItem::getExchangeGatewayId)
             .distinct()
             .collect(toList());
     }
 
-    public List<String> searchForStrategies(Long fromTimestamp, Long toTimestamp, String exchangeId)
+    public List<String> searchForStrategies(Long fromTimestamp, Long toTimestamp, String exchangeGatewayId)
     {
-        return tradeHistoryItemRepository.findTrades(fromTimestamp, toTimestamp, exchangeId)
+        return tradeHistoryItemRepository.findTrades(fromTimestamp, toTimestamp, exchangeGatewayId)
             .stream()
             .map(TradeHistoryItem::getStrategyId)
             .distinct()
