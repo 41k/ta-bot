@@ -20,6 +20,8 @@ export class DashboardComponent {
 
   fromTime = '';
   toTime = '';
+  exchangeGateways!: string[];
+  selectedExchangeGateway!: string;
   updateViewDataTask?: any;
 
   nTrades = 0;
@@ -33,8 +35,13 @@ export class DashboardComponent {
   constructor(private datePipe: DatePipe, private historyApiClient: HistoryApiClient) {
     this.chartOptions = this.getInitialChartOptions();
     this.initFilters();
-    this.updateViewData();
+    this.loadExchangeGateways();
     this.runUpdateViewDataTask();
+  }
+
+  handleTimeRangeUpdate(): void {
+    this.loadExchangeGateways();
+    this.rerunUpdateViewDataTask();
   }
 
   private initFilters(): void {
@@ -47,16 +54,30 @@ export class DashboardComponent {
     )!;
   }
 
-  handleTimeRangeUpdate(): void {
-    this.updateViewData();
-    this.rerunUpdateViewDataTask();
+  private loadExchangeGateways(): void {
+    this.historyApiClient
+      .getExchangeGateways({
+        fromTimestamp: new Date(this.fromTime).getTime(),
+        toTimestamp: new Date(this.toTime).getTime(),
+      })
+      .subscribe((response: HttpResponse<string[]>) => {
+        const exchangeGateways = response.body;
+        if (exchangeGateways && exchangeGateways.length > 0) {
+          this.exchangeGateways = exchangeGateways;
+          this.selectedExchangeGateway = exchangeGateways[0];
+          this.updateViewData();
+        } else {
+          this.exchangeGateways = [];
+        }
+      });
   }
 
-  private updateViewData(): void {
+  updateViewData(): void {
     this.historyApiClient
       .getTrades({
         fromTimestamp: new Date(this.fromTime).getTime(),
         toTimestamp: new Date(this.toTime).getTime(),
+        exchangeGatewayId: this.selectedExchangeGateway,
         page: 0,
         size: 0,
         sort: ['fromTimestamp,asc'],
@@ -108,7 +129,7 @@ export class DashboardComponent {
       ],
       chart: {
         type: 'area',
-        height: 350,
+        height: 330,
         zoom: {
           enabled: false,
         },
