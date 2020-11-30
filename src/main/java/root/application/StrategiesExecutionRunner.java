@@ -4,8 +4,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 import root.application.application.HistoryService;
+import root.application.application.HistoryFilter;
 import root.application.domain.report.TradeHistoryItem;
 import root.application.domain.trading.StrategiesExecutor;
 
@@ -26,6 +28,11 @@ public class StrategiesExecutionRunner implements CommandLineRunner
     private final static double AMOUNT_TO_BUY = 1d;
     private final static long FROM_TIMESTAMP = 1597901099999L;
     private final static long TO_TIMESTAMP = 1598009399999L;
+    private final static HistoryFilter.HistoryFilterBuilder HISTORY_FILTER_BUILDER =
+        HistoryFilter.builder()
+            .fromTimestamp(FROM_TIMESTAMP)
+            .toTimestamp(TO_TIMESTAMP)
+            .exchangeGatewayId(EXCHANGE_GATEWAY_ID);
 
     private final Map<String, StrategiesExecutor> strategyExecutorsStore;
     private final HistoryService historyService;
@@ -49,7 +56,9 @@ public class StrategiesExecutionRunner implements CommandLineRunner
         TimeUnit.SECONDS.sleep(120);
 
         STRATEGY_IDS.forEach(strategyId -> {
-            var trades = historyService.searchForTrades(FROM_TIMESTAMP, TO_TIMESTAMP, EXCHANGE_GATEWAY_ID, strategyId);
+            var filter = HISTORY_FILTER_BUILDER.strategyId(strategyId).build();
+            var pageable = PageRequest.of(0, 10000);
+            var trades = historyService.searchForTrades(filter, pageable);
             System.out.println();
             System.out.println("----------------------------------------");
             System.out.println("Strategy Id: " + strategyId);

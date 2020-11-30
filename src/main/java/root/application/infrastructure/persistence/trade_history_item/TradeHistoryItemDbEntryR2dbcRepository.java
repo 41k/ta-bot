@@ -1,28 +1,49 @@
 package root.application.infrastructure.persistence.trade_history_item;
 
-import org.springframework.data.r2dbc.repository.Query;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.r2dbc.core.DatabaseClient;
+import org.springframework.data.r2dbc.query.Criteria;
 import org.springframework.data.r2dbc.repository.R2dbcRepository;
 import reactor.core.publisher.Flux;
+import root.application.application.HistoryFilter;
 
-public interface TradeHistoryItemDbEntryR2dbcRepository extends R2dbcRepository<TradeHistoryItemDbEntry, Long>
+import static java.util.Objects.nonNull;
+
+public interface TradeHistoryItemDbEntryR2dbcRepository extends R2dbcRepository<TradeHistoryItemDbEntry, Long>, TradeHistoryItemDbEntryR2dbcRepositoryInternal
 {
-    @Query("SELECT * FROM trade_history_item WHERE " +
-            "entry_timestamp >= :fromTimestamp AND " +
-            "exit_timestamp <= :toTimestamp")
-    Flux<TradeHistoryItemDbEntry> findAllInRange(Long fromTimestamp, Long toTimestamp);
+}
 
-    @Query("SELECT * FROM trade_history_item WHERE " +
-            "entry_timestamp >= :fromTimestamp AND " +
-            "exit_timestamp <= :toTimestamp AND " +
-            "exchange_gateway_id = :exchangeGatewayId")
-    Flux<TradeHistoryItemDbEntry> findAllInRangeByExchangeGatewayId(
-        Long fromTimestamp, Long toTimestamp, String exchangeGatewayId);
+interface TradeHistoryItemDbEntryR2dbcRepositoryInternal
+{
+    Flux<TradeHistoryItemDbEntry> findAllByFilter(HistoryFilter filter, Pageable pageable);
+}
 
-    @Query("SELECT * FROM trade_history_item WHERE " +
-            "entry_timestamp >= :fromTimestamp AND " +
-            "exit_timestamp <= :toTimestamp AND " +
-            "exchange_gateway_id = :exchangeGatewayId AND " +
-            "strategy_id = :strategyId")
-    Flux<TradeHistoryItemDbEntry> findAllInRangeByExchangeGatewayIdAndStrategyId(
-        Long fromTimestamp, Long toTimestamp, String exchangeGatewayId, String strategyId);
+@RequiredArgsConstructor
+class TradeHistoryItemDbEntryR2dbcRepositoryInternalImpl implements TradeHistoryItemDbEntryR2dbcRepositoryInternal
+{
+    private final DatabaseClient databaseClient;
+
+    public Flux<TradeHistoryItemDbEntry> findAllByFilter(HistoryFilter filter, Pageable pageable)
+    {
+        var criteria = Criteria
+            .where("entry_timestamp").greaterThanOrEquals(filter.getFromTimestamp())
+            .and("exit_timestamp").lessThanOrEquals(filter.getToTimestamp());
+        var exchangeGatewayId = filter.getExchangeGatewayId();
+        if (nonNull(exchangeGatewayId))
+        {
+            criteria = criteria.and("exchange_gateway_id").is(exchangeGatewayId);
+        }
+        var strategyId = filter.getStrategyId();
+        if (nonNull(strategyId))
+        {
+            criteria = criteria.and("strategy_id").is(strategyId);
+        }
+        return databaseClient.select()
+            .from(TradeHistoryItemDbEntry.class)
+            .matching(criteria)
+            .page(pageable)
+            .as(TradeHistoryItemDbEntry.class)
+            .all();
+    }
 }

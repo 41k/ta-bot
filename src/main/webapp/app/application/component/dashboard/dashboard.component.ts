@@ -79,8 +79,8 @@ export class DashboardComponent {
         toTimestamp: new Date(this.toTime).getTime(),
         exchangeGatewayId: this.selectedExchangeGateway,
         page: 0,
-        size: 0,
-        sort: ['fromTimestamp,asc'],
+        size: 10000,
+        sort: ['exitTimestamp,asc'],
       })
       .subscribe((response: HttpResponse<Trade[]>) => {
         const trades = response.body;

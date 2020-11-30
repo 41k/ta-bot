@@ -1,16 +1,13 @@
 package root.application.application;
 
+import org.springframework.data.domain.Pageable;
 import root.application.domain.report.TradeHistoryItem;
 
 import java.util.List;
 
 public interface ApplicationLevelTradeHistoryItemRepository {
 
-    List<TradeHistoryItem> findTrades();
+    List<TradeHistoryItem> findAllTrades();
 
-    List<TradeHistoryItem> findTrades(Long fromTimestamp, Long toTimestamp);
-
-    List<TradeHistoryItem> findTrades(Long fromTimestamp, Long toTimestamp, String exchangeGatewayId);
-
-    List<TradeHistoryItem> findTrades(Long fromTimestamp, Long toTimestamp, String exchangeGatewayId, String strategyId);
+    List<TradeHistoryItem> findTrades(HistoryFilter filter, Pageable pageable);
 }

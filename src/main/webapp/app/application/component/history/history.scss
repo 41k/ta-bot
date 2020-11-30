@@ -1,0 +1,15 @@
+.table-success,
+.table-success > td {
+  background-color: #bae6c9;
+  color: #55595c;
+  font-weight: normal;
+  cursor: pointer;
+}
+
+.table-danger,
+.table-danger > td {
+  background-color: #efbbb9;
+  color: #55595c;
+  font-weight: normal;
+  cursor: pointer;
+}

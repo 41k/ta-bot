@@ -10,6 +10,7 @@ import { ChartComponent } from 'ng-apexcharts';
 @Component({
   selector: 'jhi-history',
   templateUrl: './history.component.html',
+  styleUrls: ['history.scss'],
 })
 export class HistoryComponent {
   private initialTimeRangeLengthInHours = 12;
@@ -101,8 +102,8 @@ export class HistoryComponent {
         exchangeGatewayId: this.selectedExchangeGateway,
         strategyId: this.selectedStrategy,
         page: 0,
-        size: 0,
-        sort: ['fromTimestamp,asc'],
+        size: 10000,
+        sort: ['exitTimestamp,asc'],
       })
       .subscribe((response: HttpResponse<Trade[]>) => {
         const trades = response.body;

@@ -1,58 +1,46 @@
 package root.application.application;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import root.application.domain.report.TradeHistoryItem;
 
 import java.util.List;
 
-import static java.util.Objects.nonNull;
 import static java.util.stream.Collectors.toList;
 
 @RequiredArgsConstructor
 public class HistoryService
 {
+    private static final Pageable DEFAULT_PAGEABLE = PageRequest.of(0, 10000);
+
     private final ApplicationLevelTradeHistoryItemRepository tradeHistoryItemRepository;
 
-    public List<TradeHistoryItem> searchForTrades(Long fromTimestamp, Long toTimestamp, String exchangeGatewayId, String strategyId)
+    public List<String> searchForExchanges(HistoryFilter filter)
     {
-        if (nonNull(fromTimestamp) && nonNull(toTimestamp) && nonNull(exchangeGatewayId) && nonNull(strategyId))
-        {
-            return tradeHistoryItemRepository.findTrades(fromTimestamp, toTimestamp, exchangeGatewayId, strategyId);
-        }
-        else if (nonNull(fromTimestamp) && nonNull(toTimestamp) && nonNull(exchangeGatewayId))
-        {
-            return tradeHistoryItemRepository.findTrades(fromTimestamp, toTimestamp, exchangeGatewayId);
-        }
-        else if (nonNull(fromTimestamp) && nonNull(toTimestamp))
-        {
-            return tradeHistoryItemRepository.findTrades(fromTimestamp, toTimestamp);
-        }
-        else
-        {
-            return List.of();
-        }
-    }
-
-    public List<TradeHistoryItem> getAllTrades()
-    {
-        return tradeHistoryItemRepository.findTrades();
-    }
-
-    public List<String> searchForExchanges(Long fromTimestamp, Long toTimestamp)
-    {
-        return tradeHistoryItemRepository.findTrades(fromTimestamp, toTimestamp)
+        return tradeHistoryItemRepository.findTrades(filter, DEFAULT_PAGEABLE)
             .stream()
             .map(TradeHistoryItem::getExchangeGatewayId)
             .distinct()
             .collect(toList());
     }
 
-    public List<String> searchForStrategies(Long fromTimestamp, Long toTimestamp, String exchangeGatewayId)
+    public List<String> searchForStrategies(HistoryFilter filter)
     {
-        return tradeHistoryItemRepository.findTrades(fromTimestamp, toTimestamp, exchangeGatewayId)
+        return tradeHistoryItemRepository.findTrades(filter, DEFAULT_PAGEABLE)
             .stream()
             .map(TradeHistoryItem::getStrategyId)
             .distinct()
             .collect(toList());
+    }
+
+    public List<TradeHistoryItem> searchForTrades(HistoryFilter filter, Pageable pageable)
+    {
+        return tradeHistoryItemRepository.findTrades(filter, pageable);
+    }
+
+    public List<TradeHistoryItem> getAllTrades()
+    {
+        return tradeHistoryItemRepository.findAllTrades();
     }
 }

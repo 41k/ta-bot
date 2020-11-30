@@ -1,12 +1,12 @@
 import { Route } from '@angular/router';
 
-import { HomeComponent } from './home.component';
+import { DashboardComponent } from '../application/component/dashboard/dashboard.component';
 
 export const HOME_ROUTE: Route = {
   path: '',
-  component: HomeComponent,
+  component: DashboardComponent,
   data: {
     authorities: [],
-    pageTitle: 'home.title',
+    pageTitle: 'dashboard.title',
   },
 };

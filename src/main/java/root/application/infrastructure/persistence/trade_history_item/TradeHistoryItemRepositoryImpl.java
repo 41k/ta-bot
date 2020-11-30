@@ -1,8 +1,10 @@
 package root.application.infrastructure.persistence.trade_history_item;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import reactor.core.publisher.Mono;
 import root.application.application.ApplicationLevelTradeHistoryItemRepository;
+import root.application.application.HistoryFilter;
 import root.application.domain.report.TradeHistoryItem;
 import root.application.domain.report.TradeHistoryItemRepository;
 
@@ -24,7 +26,8 @@ public class TradeHistoryItemRepositoryImpl implements TradeHistoryItemRepositor
         return tradeHistoryItem;
     }
 
-    public List<TradeHistoryItem> findTrades()
+    @Override
+    public List<TradeHistoryItem> findAllTrades()
     {
         return r2dbcRepository.findAll()
             .map(mapper::toDomainObject)
@@ -32,25 +35,10 @@ public class TradeHistoryItemRepositoryImpl implements TradeHistoryItemRepositor
             .block();
     }
 
-    public List<TradeHistoryItem> findTrades(Long fromTimestamp, Long toTimestamp)
+    @Override
+    public List<TradeHistoryItem> findTrades(HistoryFilter filter, Pageable pageable)
     {
-        return r2dbcRepository.findAllInRange(fromTimestamp, toTimestamp)
-            .map(mapper::toDomainObject)
-            .collectList()
-            .block();
-    }
-
-    public List<TradeHistoryItem> findTrades(Long fromTimestamp, Long toTimestamp, String exchangeGatewayId)
-    {
-        return r2dbcRepository.findAllInRangeByExchangeGatewayId(fromTimestamp, toTimestamp, exchangeGatewayId)
-            .map(mapper::toDomainObject)
-            .collectList()
-            .block();
-    }
-
-    public List<TradeHistoryItem> findTrades(Long fromTimestamp, Long toTimestamp, String exchangeGatewayId, String strategyId)
-    {
-        return r2dbcRepository.findAllInRangeByExchangeGatewayIdAndStrategyId(fromTimestamp, toTimestamp, exchangeGatewayId, strategyId)
+        return r2dbcRepository.findAllByFilter(filter, pageable)
             .map(mapper::toDomainObject)
             .collectList()
             .block();
