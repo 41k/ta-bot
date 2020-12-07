@@ -1,4 +1,4 @@
-package root.application.domain.report;
+package root.application.domain.history;
 
 import lombok.RequiredArgsConstructor;
 import org.ta4j.core.Trade;
@@ -21,22 +21,31 @@ public class TradeHistoryItemBuilder
     private static final int DEFAULT_N_TICKS_BEFORE_TRADE = 20;
     private static final int DEFAULT_N_TICKS_AFTER_TRADE = 20;
 
-    public TradeHistoryItem build(Trade trade, StrategyFactory strategyFactory, String exchangeGatewayId)
+    public TradeHistoryItem build(Trade trade, TradeContext tradeContext)
     {
+        var strategyExecutionContext = tradeContext.getStrategyExecutionContext();
+        var totalProfit = trade.getProfit().doubleValue();
+        var amount = strategyExecutionContext.getAmount();
+        var strategyFactory = tradeContext.getStrategyFactory();
         var ticksBeforeTrade = getTicksBeforeTrade(trade, strategyFactory);
         var ticksDuringTrade = getTicksDuringTrade(trade, strategyFactory);
         var ticksAfterTrade = getTicksAfterTrade(trade, strategyFactory);
         var ticks = Stream.of(ticksBeforeTrade, ticksDuringTrade, ticksAfterTrade)
-                .flatMap(Collection::stream)
-                .collect(toList());
+            .flatMap(Collection::stream)
+            .collect(toList());
         var entryTimestamp = getEntryTimestamp(ticksDuringTrade);
         var exitTimestamp = getExitTimestamp(ticksDuringTrade);
         return TradeHistoryItem.builder()
-                .strategyId(strategyFactory.getStrategyId())
-                .exchangeGatewayId(exchangeGatewayId)
+                .exchangeGateway(tradeContext.getExchangeGateway().getName())
+                .strategyExecutionId(tradeContext.getStrategyExecutionId())
+                .strategyName(strategyFactory.getStrategyName())
+                .symbol(strategyExecutionContext.getSymbol())
+                .amount(amount)
+                .totalProfit(totalProfit)
+                .absoluteProfit(totalProfit / amount)
+                .interval(strategyExecutionContext.getInterval())
                 .entryTimestamp(entryTimestamp)
                 .exitTimestamp(exitTimestamp)
-                .profit(trade.getProfit().doubleValue())
                 .ticks(ticks)
                 .build();
     }

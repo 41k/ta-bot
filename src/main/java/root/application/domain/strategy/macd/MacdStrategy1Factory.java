@@ -25,6 +25,9 @@ import java.util.List;
 
 public class MacdStrategy1Factory extends AbstractStrategyFactory
 {
+    private static final String STRATEGY_ID = "8795316a-c6ef-4cab-bc84-6e508701f95f";
+    private static final String STRATEGY_NAME = "MACD-1";
+
     private final ClosePriceIndicator closePriceIndicator;
     private final MACDIndicator macdIndicator;
     private final MACDSignalLineIndicator macdSignalLineIndicator;
@@ -33,7 +36,7 @@ public class MacdStrategy1Factory extends AbstractStrategyFactory
 
     public MacdStrategy1Factory()
     {
-        super("MACD#1");
+        super(STRATEGY_ID, STRATEGY_NAME);
         this.closePriceIndicator = new ClosePriceIndicator(series);
         this.macdIndicator = new MACDIndicator(closePriceIndicator, 12, 26);
         this.macdSignalLineIndicator = new MACDSignalLineIndicator(macdIndicator, 9);

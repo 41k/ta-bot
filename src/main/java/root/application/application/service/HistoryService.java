@@ -1,9 +1,12 @@
-package root.application.application;
+package root.application.application.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import root.application.domain.report.TradeHistoryItem;
+import root.application.application.model.HistoryFilter;
+import root.application.application.model.StrategyExecutionInfo;
+import root.application.application.repository.ApplicationLevelTradeHistoryItemRepository;
+import root.application.domain.history.TradeHistoryItem;
 
 import java.util.List;
 
@@ -16,20 +19,20 @@ public class HistoryService
 
     private final ApplicationLevelTradeHistoryItemRepository tradeHistoryItemRepository;
 
-    public List<String> searchForExchanges(HistoryFilter filter)
+    public List<String> searchForExchangeGateways(HistoryFilter filter)
     {
         return tradeHistoryItemRepository.findTrades(filter, DEFAULT_PAGEABLE)
             .stream()
-            .map(TradeHistoryItem::getExchangeGatewayId)
+            .map(TradeHistoryItem::getExchangeGateway)
             .distinct()
             .collect(toList());
     }
 
-    public List<String> searchForStrategies(HistoryFilter filter)
+    public List<StrategyExecutionInfo> searchForStrategyExecutions(HistoryFilter filter)
     {
         return tradeHistoryItemRepository.findTrades(filter, DEFAULT_PAGEABLE)
             .stream()
-            .map(TradeHistoryItem::getStrategyId)
+            .map(this::buildStrategyExecutionInfo)
             .distinct()
             .collect(toList());
     }
@@ -42,5 +45,16 @@ public class HistoryService
     public List<TradeHistoryItem> getAllTrades()
     {
         return tradeHistoryItemRepository.findAllTrades();
+    }
+
+    private StrategyExecutionInfo buildStrategyExecutionInfo(TradeHistoryItem tradeHistoryItem)
+    {
+        return StrategyExecutionInfo.builder()
+            .id(tradeHistoryItem.getStrategyExecutionId())
+            .strategyName(tradeHistoryItem.getStrategyName())
+            .symbol(tradeHistoryItem.getSymbol())
+            .amount(tradeHistoryItem.getAmount())
+            .interval(tradeHistoryItem.getInterval())
+            .build();
     }
 }

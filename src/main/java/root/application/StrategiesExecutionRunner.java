@@ -6,16 +6,20 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
-import root.application.application.HistoryService;
-import root.application.application.HistoryFilter;
-import root.application.domain.report.TradeHistoryItem;
-import root.application.domain.trading.StrategiesExecutor;
+import root.application.application.model.HistoryFilter;
+import root.application.application.service.HistoryService;
+import root.application.domain.history.TradeHistoryItem;
+import root.application.domain.trading.StrategyExecutionContext;
+import root.application.domain.trading.StrategyExecutionsManager;
 
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.concurrent.TimeUnit;
 
+import static java.lang.String.format;
 import static java.util.Optional.ofNullable;
+import static root.application.domain.trading.Interval.ONE_MINUTE;
 
 // NOTE: Remove tabot db before launch
 //@Component
@@ -23,18 +27,25 @@ import static java.util.Optional.ofNullable;
 @RequiredArgsConstructor
 public class StrategiesExecutionRunner implements CommandLineRunner
 {
-    private final static String EXCHANGE_GATEWAY_ID = "stub-exchange";
-    private final static List<String> STRATEGY_IDS = List.of("MACD#1", "RSI#1", "SMA#5");
-    private final static double AMOUNT_TO_BUY = 1d;
-    private final static long FROM_TIMESTAMP = 1597901099999L;
-    private final static long TO_TIMESTAMP = 1598009399999L;
+    private static final String EXCHANGE_GATEWAY_ID = "d1609961-d114-419d-8146-20f4e90dde66";
+    private static final String EXCHANGE_GATEWAY_NAME = "StubExchange";
+    private final static List<String> STRATEGY_IDS = List.of(
+        "8795316a-c6ef-4cab-bc84-6e508701f95f",
+        "0e18f4e3-e645-46c9-9565-3344f726f1e1",
+        "ed2fb8fb-d1b4-4bf2-b9c5-68074931e2a8"
+    );
+    private final static StrategyExecutionContext.StrategyExecutionContextBuilder STRATEGY_EXECUTION_CONTEXT_BUILDER =
+        StrategyExecutionContext.builder()
+            .symbol("BTC/USD")
+            .amount(0.01d)
+            .interval(ONE_MINUTE);
     private final static HistoryFilter.HistoryFilterBuilder HISTORY_FILTER_BUILDER =
         HistoryFilter.builder()
-            .fromTimestamp(FROM_TIMESTAMP)
-            .toTimestamp(TO_TIMESTAMP)
-            .exchangeGatewayId(EXCHANGE_GATEWAY_ID);
+            .fromTimestamp(1597901099999L)
+            .toTimestamp(1598009399999L)
+            .exchangeGateway(EXCHANGE_GATEWAY_NAME);
 
-    private final Map<String, StrategiesExecutor> strategyExecutorsStore;
+    private final Map<String, StrategyExecutionsManager> strategyExecutionManagersStore;
     private final HistoryService historyService;
 
     @Override
@@ -46,8 +57,10 @@ public class StrategiesExecutionRunner implements CommandLineRunner
 
     private void runStrategies()
     {
-        ofNullable(strategyExecutorsStore.get(EXCHANGE_GATEWAY_ID)).ifPresent(strategiesExecutor ->
-            STRATEGY_IDS.forEach(strategyId -> strategiesExecutor.activateStrategy(strategyId, AMOUNT_TO_BUY)));
+        STRATEGY_IDS.forEach(strategyId -> {
+            var strategyExecutionContext = STRATEGY_EXECUTION_CONTEXT_BUILDER.strategyId(strategyId).build();
+            getStrategyExecutionsManager().runStrategyExecution(strategyExecutionContext);
+        });
     }
 
     @SneakyThrows
@@ -55,13 +68,13 @@ public class StrategiesExecutionRunner implements CommandLineRunner
     {
         TimeUnit.SECONDS.sleep(120);
 
-        STRATEGY_IDS.forEach(strategyId -> {
-            var filter = HISTORY_FILTER_BUILDER.strategyId(strategyId).build();
+        getStrategyExecutionsManager().getStrategyExecutions().forEach(strategyExecution -> {
+            var filter = HISTORY_FILTER_BUILDER.strategyExecutionId(strategyExecution.getId()).build();
             var pageable = PageRequest.of(0, 10000);
             var trades = historyService.searchForTrades(filter, pageable);
             System.out.println();
             System.out.println("----------------------------------------");
-            System.out.println("Strategy Id: " + strategyId);
+            System.out.println("Strategy: " + strategyExecution.getStrategyName());
             System.out.println("Total profit: " + calculateTotalProfit(trades));
             System.out.println("N trades: " + trades.size());
             var nProfitableTrades = calculateNumberOfProfitableTrades(trades);
@@ -78,17 +91,23 @@ public class StrategiesExecutionRunner implements CommandLineRunner
         System.out.println();
     }
 
+    private StrategyExecutionsManager getStrategyExecutionsManager()
+    {
+        return ofNullable(strategyExecutionManagersStore.get(EXCHANGE_GATEWAY_ID)).orElseThrow(() -> new NoSuchElementException(
+            format("Strategy executions manager for exchange gateway [%s] is not found.", EXCHANGE_GATEWAY_ID)));
+    }
+
     private Double calculateTotalProfit(List<TradeHistoryItem> trades)
     {
         return trades.stream()
-            .mapToDouble(TradeHistoryItem::getProfit)
+            .mapToDouble(TradeHistoryItem::getTotalProfit)
             .sum();
     }
 
     private long calculateNumberOfProfitableTrades(List<TradeHistoryItem> trades)
     {
         return trades.stream()
-            .mapToDouble(TradeHistoryItem::getProfit)
+            .mapToDouble(TradeHistoryItem::getTotalProfit)
             .filter(profit -> profit > 0)
             .count();
     }
@@ -96,7 +115,7 @@ public class StrategiesExecutionRunner implements CommandLineRunner
     private long calculateNumberOfUnprofitableTrades(List<TradeHistoryItem> trades)
     {
         return trades.stream()
-            .mapToDouble(TradeHistoryItem::getProfit)
+            .mapToDouble(TradeHistoryItem::getTotalProfit)
             .filter(profit -> profit <= 0)
             .count();
     }

@@ -12,10 +12,28 @@
             <column name="id" type="bigint" autoIncrement="true">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
-            <column name="strategy_id" type="varchar(150)">
+            <column name="exchange_gateway" type="varchar(150)">
                 <constraints nullable="false"/>
             </column>
-            <column name="exchange_gateway_id" type="varchar(150)">
+            <column name="strategy_execution_id" type="varchar(150)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="strategy_name" type="varchar(150)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="symbol" type="varchar(150)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="amount" type="double">
+                <constraints nullable="false"/>
+            </column>
+            <column name="total_profit" type="double">
+                <constraints nullable="false"/>
+            </column>
+            <column name="absolute_profit" type="double">
+                <constraints nullable="false"/>
+            </column>
+            <column name="time_interval" type="varchar(150)">
                 <constraints nullable="false"/>
             </column>
             <column name="entry_timestamp" type="bigint">
@@ -24,23 +42,19 @@
             <column name="exit_timestamp" type="bigint">
                 <constraints nullable="false"/>
             </column>
-            <column name="profit" type="double">
-                <constraints nullable="false"/>
-            </column>
             <column name="ticks" type="text">
                 <constraints nullable="false"/>
             </column>
         </createTable>
-        <addUniqueConstraint
-            columnNames="strategy_id, exchange_gateway_id, entry_timestamp"
-            constraintName="trade_history_item_uniqueness"
-            tableName="trade_history_item"/>
 
         <createTable tableName="bar">
             <column name="id" type="bigint" autoIncrement="true">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
-            <column name="exchange_gateway_id" type="varchar(150)">
+            <column name="exchange_gateway" type="varchar(150)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="time_interval" type="varchar(150)">
                 <constraints nullable="false"/>
             </column>
             <column name="duration" type="bigint">
@@ -66,7 +80,7 @@
             </column>
         </createTable>
         <addUniqueConstraint
-            columnNames="exchange_gateway_id, duration, timestamp"
+            columnNames="exchange_gateway, duration, timestamp"
             constraintName="bar_uniqueness"
             tableName="bar"/>
 

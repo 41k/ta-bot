@@ -5,12 +5,16 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 import org.ta4j.core.Bar;
 import org.ta4j.core.BaseBar;
 import org.ta4j.core.num.Num;
 import org.ta4j.core.num.PrecisionNum;
+import root.application.domain.trading.Interval;
 
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.time.Duration;
@@ -35,7 +39,11 @@ public class BarDbEntry implements Serializable
     @Id
     private Long id;
     @NotNull
-    private String exchangeGatewayId;
+    private String exchangeGateway;
+    @NotNull
+    @Column("time_interval")
+    @Enumerated(EnumType.STRING)
+    private Interval interval;
     @NotNull
     private Long duration;
     @NotNull
@@ -59,10 +67,11 @@ public class BarDbEntry implements Serializable
         return new BaseBar(barDuration, zonedBarTime, open, high, low, close, volume, AMOUNT, TRADES, NUM_FUNCTION);
     }
 
-    public static BarDbEntry fromDomainObject(Bar bar, String exchangeGatewayId)
+    public static BarDbEntry fromDomainObject(Bar bar, String exchangeGateway, Interval interval)
     {
         return BarDbEntry.builder()
-            .exchangeGatewayId(exchangeGatewayId)
+            .exchangeGateway(exchangeGateway)
+            .interval(interval)
             .duration(bar.getTimePeriod().toMillis())
             .timestamp(bar.getEndTime().toInstant().toEpochMilli())
             .open(bar.getOpenPrice().doubleValue())

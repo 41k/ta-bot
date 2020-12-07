@@ -3,8 +3,8 @@ package root.application.infrastructure.persistence.trade_history_item;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
-import root.application.domain.report.Tick;
-import root.application.domain.report.TradeHistoryItem;
+import root.application.domain.history.Tick;
+import root.application.domain.history.TradeHistoryItem;
 
 import java.util.Arrays;
 import java.util.List;
@@ -19,11 +19,16 @@ public class TradeHistoryItemMapper
     public TradeHistoryItem toDomainObject(TradeHistoryItemDbEntry dbEntry)
     {
         return TradeHistoryItem.builder()
-            .strategyId(dbEntry.getStrategyId())
-            .exchangeGatewayId(dbEntry.getExchangeGatewayId())
+            .exchangeGateway(dbEntry.getExchangeGateway())
+            .strategyExecutionId(dbEntry.getStrategyExecutionId())
+            .strategyName(dbEntry.getStrategyName())
+            .symbol(dbEntry.getSymbol())
+            .amount(dbEntry.getAmount())
+            .totalProfit(dbEntry.getTotalProfit())
+            .absoluteProfit(dbEntry.getAbsoluteProfit())
+            .interval(dbEntry.getInterval())
             .entryTimestamp(dbEntry.getEntryTimestamp())
             .exitTimestamp(dbEntry.getExitTimestamp())
-            .profit(dbEntry.getProfit())
             .ticks(toTicksList(dbEntry.getTicks()))
             .build();
     }
@@ -31,11 +36,16 @@ public class TradeHistoryItemMapper
     public TradeHistoryItemDbEntry toDbEntry(TradeHistoryItem domainObject)
     {
         return TradeHistoryItemDbEntry.builder()
-            .strategyId(domainObject.getStrategyId())
-            .exchangeGatewayId(domainObject.getExchangeGatewayId())
+            .exchangeGateway(domainObject.getExchangeGateway())
+            .strategyExecutionId(domainObject.getStrategyExecutionId())
+            .strategyName(domainObject.getStrategyName())
+            .symbol(domainObject.getSymbol())
+            .amount(domainObject.getAmount())
+            .totalProfit(domainObject.getTotalProfit())
+            .absoluteProfit(domainObject.getAbsoluteProfit())
+            .interval(domainObject.getInterval())
             .entryTimestamp(domainObject.getEntryTimestamp())
             .exitTimestamp(domainObject.getExitTimestamp())
-            .profit(domainObject.getProfit())
             .ticks(toTicksDbData(domainObject.getTicks()))
             .build();
     }

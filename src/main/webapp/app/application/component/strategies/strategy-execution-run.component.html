@@ -1,0 +1,74 @@
+<div class="modal-header">
+    <strong>Run execution of strategy</strong>
+    <div class="badge badge-success">
+        {{strategy.name}}
+    </div>
+</div>
+
+<div class="modal-body">
+    <div class="row" *ngIf="!done">
+        <div class="col-md-12 mt-3 mb-3" *ngIf="exchangeGateways && exchangeGateways.length > 0">
+            <div class="input-group">
+                <div class="input-group-prepend">
+                    <span class="input-group-text">Exchange gateway</span>
+                </div>
+                <select class="custom-select" [(ngModel)]="selectedExchangeGatewayId" (change)="loadSymbols()">
+                    <option *ngFor="let exchangeGateway of exchangeGateways" [value]="exchangeGateway.id" [selected]="exchangeGateway.id==selectedExchangeGatewayId">
+                        {{exchangeGateway.name}}
+                    </option>
+                </select>
+            </div>
+        </div>
+        <div class="col-md-12 mb-3" *ngIf="symbols && symbols.length > 0">
+            <div class="input-group">
+                <div class="input-group-prepend">
+                    <span class="input-group-text">Symbol</span>
+                </div>
+                <select class="custom-select" [(ngModel)]="selectedSymbol">
+                    <option *ngFor="let symbol of symbols" [value]="symbol" [selected]="symbol==selectedSymbol">
+                        {{symbol}}
+                    </option>
+                </select>
+            </div>
+        </div>
+        <div class="col-md-12 mb-3" *ngIf="symbols && symbols.length > 0">
+            <div class="input-group">
+                <div class="input-group-prepend">
+                    <span class="input-group-text">Amount</span>
+                </div>
+                <input type="number" class="form-control" name="amount" [(ngModel)]="amount"/>
+            </div>
+        </div>
+        <div class="col-md-12 mb-3" *ngIf="intervals && intervals.length > 0">
+            <div class="input-group">
+                <div class="input-group-prepend">
+                    <span class="input-group-text">Interval</span>
+                </div>
+                <select class="custom-select" [(ngModel)]="selectedInterval">
+                    <option *ngFor="let interval of intervals" [value]="interval" [selected]="interval==selectedInterval">
+                        {{intervalDictionary[interval]}}
+                    </option>
+                </select>
+            </div>
+        </div>
+        <div class="col-md-12 mb-3">
+            <button type="button" class="btn btn-primary btn-block" (click)="runStrategyExecution()">Run execution</button>
+        </div>
+    </div>
+    <div class="row" *ngIf="done">
+        <div class="col-md-12 mb-3">
+            <div class="alert alert-success">
+                <h6>Done!</h6>
+                Execution of strategy <strong><u>{{strategy.name}}</u></strong> has been run successfully.
+            </div>
+        </div>
+        <div class="col-md-12 mb-3">
+            <a class="btn btn-primary btn-block" routerLink="strategy-executions" (click)="activeModal.close()">
+                Open <u>strategy executions</u> page
+            </a>
+        </div>
+        <div class="col-md-12 mb-3">
+            <button type="button" class="btn btn-primary btn-block" (click)="activeModal.close()">Close</button>
+        </div>
+    </div>
+</div>

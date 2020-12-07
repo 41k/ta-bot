@@ -18,14 +18,16 @@ public abstract class AbstractStrategyFactory implements StrategyFactory
     private static final int BAR_SERIES_SIZE_DEFAULT_THRESHOLD = 1000;
 
     protected final String strategyId;
+    protected final String strategyName;
     protected final BarSeries series;
     protected final List<Indicator<Num>> numIndicators;
     protected Integer unstablePeriodLength;
     protected StopLossLevelProvider stopLossLevelProvider;
 
-    public AbstractStrategyFactory(String strategyId)
+    public AbstractStrategyFactory(String strategyId, String strategyName)
     {
         this.strategyId = strategyId;
+        this.strategyName = strategyName;
         this.series = initBarSeries();
         this.numIndicators = new ArrayList<>();
     }
@@ -37,6 +39,12 @@ public abstract class AbstractStrategyFactory implements StrategyFactory
     public String getStrategyId()
     {
         return strategyId;
+    }
+
+    @Override
+    public String getStrategyName()
+    {
+        return strategyName;
     }
 
     @Override

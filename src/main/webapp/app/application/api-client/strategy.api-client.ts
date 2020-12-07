@@ -1,73 +1,21 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpParams, HttpResponse } from '@angular/common/http';
+import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
-import { createRequestOption } from 'app/shared/util/request-util';
 import { SERVER_API_URL } from 'app/app.constants';
-import { ActiveStrategy } from '../model/active-strategy.model';
-
-export interface GetStrategiesRequest {
-  exchangeGatewayId: string;
-}
-
-export interface StrategyActivationRequest {
-  exchangeGatewayId: string;
-  strategyId: string;
-  amount: number;
-}
-
-export interface StrategyDeactivationRequest {
-  exchangeGatewayId: string;
-  strategyId: string;
-}
+import { Strategy } from '../model/strategy.model';
 
 @Injectable({ providedIn: 'root' })
 export class StrategyApiClient {
-  strategiesApiUrl!: string;
+  baseUrl!: string;
 
   constructor(private http: HttpClient) {
-    this.strategiesApiUrl = SERVER_API_URL + '/api/strategies';
+    this.baseUrl = SERVER_API_URL + '/api/strategies';
   }
 
-  getActiveStrategies(request: GetStrategiesRequest): Observable<HttpResponse<ActiveStrategy[]>> {
-    const params: HttpParams = createRequestOption(request);
-    const requestURL = this.strategiesApiUrl + '/active';
-    return this.http.get<ActiveStrategy[]>(requestURL, {
-      params,
+  getStrategies(): Observable<HttpResponse<Strategy[]>> {
+    return this.http.get<Strategy[]>(this.baseUrl, {
       observe: 'response',
     });
-  }
-
-  getInactiveStrategies(request: GetStrategiesRequest): Observable<HttpResponse<string[]>> {
-    const params: HttpParams = createRequestOption(request);
-    const requestURL = this.strategiesApiUrl + '/inactive';
-    return this.http.get<string[]>(requestURL, {
-      params,
-      observe: 'response',
-    });
-  }
-
-  activateStrategy(request: StrategyActivationRequest): Observable<{}> {
-    const params: HttpParams = createRequestOption(request);
-    const requestURL = this.strategiesApiUrl + '/activate';
-    return this.http.post(
-      requestURL,
-      {},
-      {
-        params,
-      }
-    );
-  }
-
-  deactivateStrategy(request: StrategyDeactivationRequest): Observable<{}> {
-    const params: HttpParams = createRequestOption(request);
-    const requestURL = this.strategiesApiUrl + '/deactivate';
-    return this.http.post(
-      requestURL,
-      {},
-      {
-        params,
-      }
-    );
   }
 }

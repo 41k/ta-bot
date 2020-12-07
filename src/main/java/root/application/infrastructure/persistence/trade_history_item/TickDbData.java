@@ -5,7 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.ta4j.core.Order;
-import root.application.domain.report.Tick;
+import root.application.domain.history.Tick;
 
 import java.util.List;
 import java.util.Map;

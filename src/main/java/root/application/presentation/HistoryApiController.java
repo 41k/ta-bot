@@ -5,9 +5,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import root.application.application.HistoryFilter;
-import root.application.application.HistoryService;
-import root.application.domain.report.TradeHistoryItem;
+import root.application.application.model.HistoryFilter;
+import root.application.application.model.StrategyExecutionInfo;
+import root.application.application.service.HistoryService;
+import root.application.domain.history.TradeHistoryItem;
 
 import java.util.List;
 
@@ -19,15 +20,15 @@ public class HistoryApiController
     private final HistoryService historyService;
 
     @GetMapping("/exchange-gateways")
-    public List<String> getExchanges(HistoryFilter filter)
+    public List<String> getExchangeGateways(HistoryFilter filter)
     {
-        return historyService.searchForExchanges(filter);
+        return historyService.searchForExchangeGateways(filter);
     }
 
-    @GetMapping("/strategies")
-    public List<String> getStrategies(HistoryFilter filter)
+    @GetMapping("/strategy-executions")
+    public List<StrategyExecutionInfo> getStrategyExecutions(HistoryFilter filter)
     {
-        return historyService.searchForStrategies(filter);
+        return historyService.searchForStrategyExecutions(filter);
     }
 
     @GetMapping("/trades")

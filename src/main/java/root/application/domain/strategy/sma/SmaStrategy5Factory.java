@@ -23,6 +23,9 @@ import java.util.List;
 
 public class SmaStrategy5Factory extends AbstractStrategyFactory
 {
+    private static final String STRATEGY_ID = "ed2fb8fb-d1b4-4bf2-b9c5-68074931e2a8";
+    private static final String STRATEGY_NAME = "SMA-5";
+
     private final ClosePriceIndicator closePriceIndicator;
     private final SMAIndicator shortSmaIndicator;
     private final SMAIndicator mediumSmaIndicator;
@@ -30,7 +33,7 @@ public class SmaStrategy5Factory extends AbstractStrategyFactory
 
     public SmaStrategy5Factory()
     {
-        super("SMA#5");
+        super(STRATEGY_ID, STRATEGY_NAME);
         this.closePriceIndicator = new ClosePriceIndicator(series);
         this.shortSmaIndicator = new SMAIndicator(closePriceIndicator, 7);
         this.mediumSmaIndicator = new SMAIndicator(closePriceIndicator, 25);

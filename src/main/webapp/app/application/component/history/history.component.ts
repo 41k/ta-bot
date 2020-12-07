@@ -6,6 +6,8 @@ import { Trade } from '../../model/trade.model';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TradeComponent } from '../trade/trade.component';
 import { ChartComponent } from 'ng-apexcharts';
+import { StrategyExecution } from '../../model/strategy-execution.model';
+import { IntervalDictionary } from '../../model/interval-dictionary.model';
 
 @Component({
   selector: 'jhi-history',
@@ -27,8 +29,8 @@ export class HistoryComponent {
   exchangeGateways!: string[];
   selectedExchangeGateway!: string;
 
-  strategies!: string[];
-  selectedStrategy!: string;
+  strategyExecutions!: StrategyExecution[];
+  selectedStrategyExecutionId!: string;
 
   nTrades = 0;
   nProfitableTrades = 0;
@@ -41,6 +43,8 @@ export class HistoryComponent {
 
   @ViewChild('chart') chart!: ChartComponent;
   chartOptions: Partial<any>;
+
+  intervalDictionary = IntervalDictionary;
 
   constructor(private datePipe: DatePipe, private historyApiClient: HistoryApiClient, private modalService: NgbModal) {
     this.initTimeRangeFilter();
@@ -55,7 +59,7 @@ export class HistoryComponent {
   }
 
   loadExchangeGateways(): void {
-    this.strategies = [];
+    this.strategyExecutions = [];
     this.trades = new Map<number, Trade>();
     this.historyApiClient
       .getExchangeGateways({
@@ -67,29 +71,29 @@ export class HistoryComponent {
         if (exchangeGateways && exchangeGateways.length > 0) {
           this.exchangeGateways = exchangeGateways;
           this.selectedExchangeGateway = exchangeGateways[0];
-          this.loadStrategies();
+          this.loadStrategyExecutions();
         } else {
           this.exchangeGateways = [];
         }
       });
   }
 
-  loadStrategies(): void {
+  loadStrategyExecutions(): void {
     this.trades = new Map<number, Trade>();
     this.historyApiClient
-      .getStrategies({
+      .getStrategyExecutions({
         fromTimestamp: new Date(this.fromTime).getTime(),
         toTimestamp: new Date(this.toTime).getTime(),
-        exchangeGatewayId: this.selectedExchangeGateway,
+        exchangeGateway: this.selectedExchangeGateway,
       })
-      .subscribe((response: HttpResponse<string[]>) => {
-        const strategies = response.body;
-        if (strategies && strategies.length > 0) {
-          this.strategies = strategies;
-          this.selectedStrategy = strategies[0];
+      .subscribe((response: HttpResponse<StrategyExecution[]>) => {
+        const strategyExecutions = response.body;
+        if (strategyExecutions && strategyExecutions.length > 0) {
+          this.strategyExecutions = strategyExecutions;
+          this.selectedStrategyExecutionId = strategyExecutions[0].id;
           this.loadTrades();
         } else {
-          this.strategies = [];
+          this.strategyExecutions = [];
         }
       });
   }
@@ -99,8 +103,8 @@ export class HistoryComponent {
       .getTrades({
         fromTimestamp: new Date(this.fromTime).getTime(),
         toTimestamp: new Date(this.toTime).getTime(),
-        exchangeGatewayId: this.selectedExchangeGateway,
-        strategyId: this.selectedStrategy,
+        exchangeGateway: this.selectedExchangeGateway,
+        strategyExecutionId: this.selectedStrategyExecutionId,
         page: 0,
         size: 10000,
         sort: ['exitTimestamp,asc'],
@@ -111,8 +115,8 @@ export class HistoryComponent {
           return;
         }
         this.nTrades = trades.length;
-        this.nProfitableTrades = trades.filter(trade => trade.profit >= 0).length;
-        this.nUnprofitableTrades = trades.filter(trade => trade.profit < 0).length;
+        this.nProfitableTrades = trades.filter(trade => trade.totalProfit >= 0).length;
+        this.nUnprofitableTrades = trades.filter(trade => trade.totalProfit < 0).length;
         this.totalProfit = this.calculateTotalProfit(trades);
         this.updateChart(trades);
         this.setTrades(trades);
@@ -128,7 +132,7 @@ export class HistoryComponent {
   }
 
   private calculateTotalProfit(trades: Trade[]): number {
-    const totalProfit = trades.reduce((accumulator, trade) => accumulator + trade.profit, 0);
+    const totalProfit = trades.reduce((accumulator, trade) => accumulator + trade.totalProfit, 0);
     return this.formatFractionDigits(totalProfit);
   }
 
@@ -187,7 +191,7 @@ export class HistoryComponent {
     const labels = [];
     for (let i = 0; i < trades.length; i++) {
       const trade = trades[i];
-      profit = this.formatFractionDigits(profit + trade.profit);
+      profit = this.formatFractionDigits(profit + trade.totalProfit);
       data.push(profit);
       const label = this.datePipe.transform(new Date(trade.exitTimestamp).getTime(), this.chartTimeFormat)!;
       labels.push(label);

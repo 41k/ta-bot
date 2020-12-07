@@ -5,6 +5,7 @@ import { DatePipe } from '@angular/common';
 import { Trade } from '../../model/trade.model';
 import { Tick } from '../../model/tick.model';
 import { Level } from '../../model/level.model';
+import { IntervalDictionary } from '../../model/interval-dictionary.model';
 
 @Component({
   selector: 'jhi-trade-chart',
@@ -14,6 +15,7 @@ export class TradeComponent {
   private additionalChartIndicatorTypes: string[] = ['RSI', 'MACD', 'OBV'];
   private chartTimeFormat = 'HH:mm:ss';
 
+  intervalDictionary = IntervalDictionary;
   trade!: Trade;
 
   @ViewChild('chart') chart!: ChartComponent;

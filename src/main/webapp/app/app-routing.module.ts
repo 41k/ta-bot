@@ -34,6 +34,11 @@ const LAYOUT_ROUTES = [navbarRoute, ...errorRoute];
           loadChildren: () => import('./application/component/strategies/strategies.module').then(m => m.StrategiesModule),
         },
         {
+          path: 'strategy-executions',
+          loadChildren: () =>
+            import('./application/component/strategy-executions/strategy-executions.module').then(m => m.StrategyExecutionsModule),
+        },
+        {
           path: 'history',
           loadChildren: () => import('./application/component/history/history.module').then(m => m.HistoryModule),
         },

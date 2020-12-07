@@ -5,46 +5,47 @@ import { Observable } from 'rxjs';
 import { createRequestOption, Pagination } from 'app/shared/util/request-util';
 import { SERVER_API_URL } from 'app/app.constants';
 import { Trade } from '../model/trade.model';
+import { StrategyExecution } from '../model/strategy-execution.model';
 
 export interface GetExchangeGatewaysRequest {
   fromTimestamp: number;
   toTimestamp: number;
 }
 
-export interface GetStrategiesRequest {
+export interface GetStrategyExecutionsRequest {
   fromTimestamp: number;
   toTimestamp: number;
-  exchangeGatewayId: string;
+  exchangeGateway: string;
 }
 
 export interface GetTradesRequest extends Pagination {
   fromTimestamp: number;
   toTimestamp: number;
-  exchangeGatewayId?: string;
-  strategyId?: string;
+  exchangeGateway?: string;
+  strategyExecutionId?: string;
 }
 
 @Injectable({ providedIn: 'root' })
 export class HistoryApiClient {
-  historyApiUrl!: string;
+  baseUrl!: string;
 
   constructor(private http: HttpClient) {
-    this.historyApiUrl = SERVER_API_URL + '/api/history';
+    this.baseUrl = SERVER_API_URL + '/api/history';
   }
 
   getExchangeGateways(request: GetExchangeGatewaysRequest): Observable<HttpResponse<string[]>> {
     const params: HttpParams = createRequestOption(request);
-    const requestURL = this.historyApiUrl + '/exchange-gateways';
+    const requestURL = this.baseUrl + '/exchange-gateways';
     return this.http.get<string[]>(requestURL, {
       params,
       observe: 'response',
     });
   }
 
-  getStrategies(request: GetStrategiesRequest): Observable<HttpResponse<string[]>> {
+  getStrategyExecutions(request: GetStrategyExecutionsRequest): Observable<HttpResponse<StrategyExecution[]>> {
     const params: HttpParams = createRequestOption(request);
-    const requestURL = this.historyApiUrl + '/strategies';
-    return this.http.get<string[]>(requestURL, {
+    const requestURL = this.baseUrl + '/strategy-executions';
+    return this.http.get<StrategyExecution[]>(requestURL, {
       params,
       observe: 'response',
     });
@@ -52,7 +53,7 @@ export class HistoryApiClient {
 
   getTrades(request: GetTradesRequest): Observable<HttpResponse<Trade[]>> {
     const params: HttpParams = createRequestOption(request);
-    const requestURL = this.historyApiUrl + '/trades';
+    const requestURL = this.baseUrl + '/trades';
     return this.http.get<Trade[]>(requestURL, {
       params,
       observe: 'response',

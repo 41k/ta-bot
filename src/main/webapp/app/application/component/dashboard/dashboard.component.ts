@@ -77,7 +77,7 @@ export class DashboardComponent {
       .getTrades({
         fromTimestamp: new Date(this.fromTime).getTime(),
         toTimestamp: new Date(this.toTime).getTime(),
-        exchangeGatewayId: this.selectedExchangeGateway,
+        exchangeGateway: this.selectedExchangeGateway,
         page: 0,
         size: 10000,
         sort: ['exitTimestamp,asc'],
@@ -88,15 +88,15 @@ export class DashboardComponent {
           return;
         }
         this.nTrades = trades.length;
-        this.nProfitableTrades = trades.filter(trade => trade.profit >= 0).length;
-        this.nUnprofitableTrades = trades.filter(trade => trade.profit < 0).length;
+        this.nProfitableTrades = trades.filter(trade => trade.totalProfit >= 0).length;
+        this.nUnprofitableTrades = trades.filter(trade => trade.totalProfit < 0).length;
         this.totalProfit = this.calculateTotalProfit(trades);
         this.updateChart(trades);
       });
   }
 
   private calculateTotalProfit(trades: Trade[]): number {
-    const totalProfit = trades.reduce((accumulator, trade) => accumulator + trade.profit, 0);
+    const totalProfit = trades.reduce((accumulator, trade) => accumulator + trade.totalProfit, 0);
     return this.formatFractionDigits(totalProfit);
   }
 
@@ -162,7 +162,7 @@ export class DashboardComponent {
     const labels = [];
     for (let i = 0; i < trades.length; i++) {
       const trade = trades[i];
-      profit = this.formatFractionDigits(profit + trade.profit);
+      profit = this.formatFractionDigits(profit + trade.totalProfit);
       data.push(profit);
       const label = this.datePipe.transform(new Date(trade.exitTimestamp).getTime(), this.chartTimeFormat)!;
       labels.push(label);

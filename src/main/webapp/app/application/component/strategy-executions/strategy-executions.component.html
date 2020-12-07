@@ -1,0 +1,81 @@
+<div class="row">
+    <div class="col-md-12 mb-3" *ngIf="!exchangeGateways || exchangeGateways.length === 0">
+        <div class="alert alert-dismissible alert-primary">
+            <strong>Exchange gateways are not configured.</strong>
+        </div>
+    </div>
+    <div class="col-md-12 mb-5" *ngIf="exchangeGateways && exchangeGateways.length > 0">
+        <div class="input-group">
+            <div class="input-group-prepend">
+                <span class="input-group-text">Exchange gateway</span>
+            </div>
+            <select class="custom-select" [(ngModel)]="selectedExchangeGatewayId" (change)="loadStrategyExecutions()">
+                <option *ngFor="let exchangeGateway of exchangeGateways" [value]="exchangeGateway.id" [selected]="exchangeGateway.id==selectedExchangeGatewayId">
+                    {{exchangeGateway.name}}
+                </option>
+            </select>
+        </div>
+    </div>
+    <div class="col-md-12" *ngIf="strategyExecutions && strategyExecutions.length > 0">
+        <table class="table table-bordered">
+            <thead class="thead-light">
+                <tr>
+                    <th scope="col">Strategy</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Symbol</th>
+                    <th scope="col">Amount</th>
+                    <th scope="col">Interval</th>
+                    <th scope="col">Up</th>
+                    <th scope="col">Down</th>
+                    <th scope="col">Profit</th>
+                    <th scope="col">Start time</th>
+                    <th scope="col">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let strategyExecution of strategyExecutions">
+                    <td>
+                        <strong>{{strategyExecution.strategyName}}</strong>
+                    </td>
+                    <td>
+                        <span class="badge badge-success" *ngIf="strategyExecution.status === 'WAITING_FOR_ENTRY'">
+                            <fa-icon icon="sign-in-alt" [fixedWidth]="true"></fa-icon>
+                        </span>
+                        <span class="badge badge-primary" *ngIf="strategyExecution.status === 'WAITING_FOR_EXIT'">
+                            <fa-icon icon="sign-out-alt" [fixedWidth]="true"></fa-icon>
+                        </span>
+                        <span class="badge badge-secondary" *ngIf="strategyExecution.status === 'STOPPING'">
+                            <fa-icon icon="pause" [fixedWidth]="true"></fa-icon>
+                        </span>
+                    </td>
+                    <td>
+                        {{strategyExecution.symbol}}
+                    </td>
+                    <td>
+                        {{strategyExecution.amount}}
+                    </td>
+                    <td>
+                        {{intervalDictionary[strategyExecution.interval]}}
+                    </td>
+                    <td>
+                        {{strategyExecution.statistics.nprofitableTrades}}
+                    </td>
+                    <td>
+                        {{strategyExecution.statistics.nunprofitableTrades}}
+                    </td>
+                    <td>
+                        <div class="badge float-left" [ngClass]="strategyExecution.statistics.totalProfit>0?'badge-success':'badge-danger'">
+                            {{strategyExecution.statistics.totalProfit > 0 ? '+' : ''}}{{strategyExecution.statistics.totalProfit.toFixed(2)}}
+                        </div>
+                    </td>
+                    <td>
+                        {{strategyExecution.startTime | date: dateTimeFormat}}
+                    </td>
+                    <td>
+                        <button type="button" class="btn btn-sm btn-outline-secondary" *ngIf="strategyExecution.status!=='STOPPING'" (click)="stopStrategyExecution(strategyExecution.id)">Stop</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

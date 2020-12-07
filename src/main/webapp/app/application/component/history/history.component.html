@@ -15,26 +15,26 @@
             <input type="datetime-local" class="form-control" name="to" [(ngModel)]="toTime" (ngModelChange)="loadExchangeGateways()" required/>
         </div>
     </div>
-    <div class="col-md-6 mb-4" *ngIf="exchangeGateways && exchangeGateways.length > 0">
+    <div class="col-md-12 mb-4" *ngIf="exchangeGateways && exchangeGateways.length > 0">
         <div class="input-group">
             <div class="input-group-prepend">
-                <span class="input-group-text">Exchange Gateway</span>
+                <span class="input-group-text">Exchange gateway</span>
             </div>
-            <select class="custom-select" [(ngModel)]="selectedExchangeGateway" (change)="loadStrategies()">
+            <select class="custom-select" [(ngModel)]="selectedExchangeGateway" (change)="loadStrategyExecutions()">
                 <option *ngFor="let exchangeGateway of exchangeGateways" [value]="exchangeGateway" [selected]="exchangeGateway==selectedExchangeGateway">
                     {{exchangeGateway}}
                 </option>
             </select>
         </div>
     </div>
-    <div class="col-md-6 mb-4" *ngIf="strategies && strategies.length > 0">
+    <div class="col-md-12 mb-4" *ngIf="strategyExecutions && strategyExecutions.length > 0">
         <div class="input-group">
             <div class="input-group-prepend">
-                <span class="input-group-text">Strategy</span>
+                <span class="input-group-text">Strategy execution</span>
             </div>
-            <select class="custom-select" [(ngModel)]="selectedStrategy" (change)="loadTrades()">
-                <option *ngFor="let strategy of strategies" [value]="strategy" [selected]="strategy==selectedStrategy">
-                    {{strategy}}
+            <select class="custom-select" [(ngModel)]="selectedStrategyExecutionId" (change)="loadTrades()">
+                <option *ngFor="let strategyExecution of strategyExecutions" [value]="strategyExecution.id" [selected]="strategyExecution.id==selectedStrategyExecutionId">
+                    {{strategyExecution.strategyName}} &#8212; {{strategyExecution.symbol}} &#8212; {{strategyExecution.amount}} &#8212; {{intervalDictionary[strategyExecution.interval]}}
                 </option>
             </select>
         </div>
@@ -86,16 +86,26 @@
 <table class="table" *ngIf="trades && trades.size > 0">
     <thead>
         <tr>
-            <th scope="col">Profit</th>
+            <th scope="col">Absolute profit</th>
+            <th scope="col">Symbol</th>
+            <th scope="col">Amount</th>
+            <th scope="col">Total profit</th>
+            <th scope="col">Interval</th>
             <th scope="col">Entry Time</th>
             <th scope="col">Exit Time</th>
         </tr>
     </thead>
     <tbody>
-        <tr *ngFor="let trade of trades | keyvalue" [ngClass]="(trade.value.profit>0)?'table-success':'table-danger'" (click)="showTradeDetails(trade.value.entryTimestamp)">
+        <tr *ngFor="let trade of trades | keyvalue" [ngClass]="(trade.value.totalProfit>0)?'table-success':'table-danger'" (click)="showTradeDetails(trade.value.entryTimestamp)">
             <td>
-                {{trade.value.profit > 0 ? '+' : ''}}{{trade.value.profit}}
+                <strong>{{trade.value.absoluteProfit > 0 ? '+' : ''}}{{trade.value.absoluteProfit.toFixed(2)}}</strong>
             </td>
+            <td>{{trade.value.symbol}}</td>
+            <td>{{trade.value.amount}}</td>
+            <td>
+                <strong>{{trade.value.totalProfit > 0 ? '+' : ''}}{{trade.value.totalProfit}}</strong>
+            </td>
+            <td>{{intervalDictionary[trade.value.interval]}}</td>
             <td>{{trade.value.entryTimestamp | date: tradesTableDateTimeFormat}}</td>
             <td>{{trade.value.exitTimestamp | date: tradesTableDateTimeFormat}}</td>
         </tr>

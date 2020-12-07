@@ -1,4 +1,4 @@
-package root.application.application;
+package root.application.application.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -13,6 +13,6 @@ public class HistoryFilter
 {
     private Long fromTimestamp;
     private Long toTimestamp;
-    private String exchangeGatewayId;
-    private String strategyId;
+    private String exchangeGateway;
+    private String strategyExecutionId;
 }

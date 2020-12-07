@@ -2,18 +2,19 @@ package root.application.configuration;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import root.application.application.ApplicationLevelTradeHistoryItemRepository;
-import root.application.application.ExchangeGatewayService;
-import root.application.application.HistoryService;
-import root.application.application.StrategyService;
-import root.application.domain.ExchangeGateway;
-import root.application.domain.report.BarRepository;
-import root.application.domain.report.TradeHistoryItemRepository;
+import root.application.application.repository.ApplicationLevelTradeHistoryItemRepository;
+import root.application.application.service.ExchangeGatewayService;
+import root.application.application.service.HistoryService;
+import root.application.application.service.StrategyExecutionService;
+import root.application.application.service.StrategyService;
+import root.application.domain.history.BarRepository;
+import root.application.domain.history.TradeHistoryItemRepository;
 import root.application.domain.strategy.StrategyFactory;
 import root.application.domain.strategy.macd.MacdStrategy1Factory;
 import root.application.domain.strategy.rsi.RsiStrategy1Factory;
 import root.application.domain.strategy.sma.SmaStrategy5Factory;
-import root.application.domain.trading.StrategiesExecutor;
+import root.application.domain.trading.ExchangeGateway;
+import root.application.domain.trading.StrategyExecutionsManager;
 import root.application.infrastructure.exchange_gateway.StubExchangeGateway;
 
 import java.util.List;
@@ -46,9 +47,8 @@ public class ApplicationConfiguration
     }
 
     @Bean
-    public Map<String, StrategiesExecutor> strategyExecutorsStore(Map<String, ExchangeGateway> exchangeGatewaysStore,
-                                                                  Map<String, StrategyFactory> strategyFactoriesStore,
-                                                                  TradeHistoryItemRepository tradeHistoryItemRepository)
+    public Map<String, StrategyExecutionsManager> strategyExecutionManagersStore(
+        Map<String, ExchangeGateway> exchangeGatewaysStore, Map<String, StrategyFactory> strategyFactoriesStore, TradeHistoryItemRepository tradeHistoryItemRepository)
     {
         // NOTE:
         // * Single user env: key = exchangeGatewayId
@@ -57,7 +57,7 @@ public class ApplicationConfiguration
             Map.Entry::getKey,
             entry -> {
                 var exchangeGateway = entry.getValue();
-                return new StrategiesExecutor(strategyFactoriesStore, exchangeGateway, tradeHistoryItemRepository);
+                return new StrategyExecutionsManager(strategyFactoriesStore, exchangeGateway, tradeHistoryItemRepository);
             }));
     }
 
@@ -68,9 +68,16 @@ public class ApplicationConfiguration
     }
 
     @Bean
-    public StrategyService strategyService(Map<String, StrategiesExecutor> strategyExecutorsStore)
+    public StrategyService strategyService(Map<String, StrategyFactory> strategyFactoriesStore)
     {
-        return new StrategyService(strategyExecutorsStore);
+        return new StrategyService(strategyFactoriesStore);
+    }
+
+    @Bean
+    public StrategyExecutionService strategyExecutionService(Map<String, StrategyExecutionsManager> strategyExecutionManagersStore,
+                                                             ApplicationLevelTradeHistoryItemRepository applicationLevelTradeHistoryItemRepository)
+    {
+        return new StrategyExecutionService(strategyExecutionManagersStore, applicationLevelTradeHistoryItemRepository);
     }
 
     @Bean

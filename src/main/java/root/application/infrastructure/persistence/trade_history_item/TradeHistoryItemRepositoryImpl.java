@@ -3,10 +3,10 @@ package root.application.infrastructure.persistence.trade_history_item;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import reactor.core.publisher.Mono;
-import root.application.application.ApplicationLevelTradeHistoryItemRepository;
-import root.application.application.HistoryFilter;
-import root.application.domain.report.TradeHistoryItem;
-import root.application.domain.report.TradeHistoryItemRepository;
+import root.application.application.repository.ApplicationLevelTradeHistoryItemRepository;
+import root.application.application.model.HistoryFilter;
+import root.application.domain.history.TradeHistoryItem;
+import root.application.domain.history.TradeHistoryItemRepository;
 
 import java.util.List;
 
@@ -39,6 +39,15 @@ public class TradeHistoryItemRepositoryImpl implements TradeHistoryItemRepositor
     public List<TradeHistoryItem> findTrades(HistoryFilter filter, Pageable pageable)
     {
         return r2dbcRepository.findAllByFilter(filter, pageable)
+            .map(mapper::toDomainObject)
+            .collectList()
+            .block();
+    }
+
+    @Override
+    public List<TradeHistoryItem> findTradesByStrategyExecutionId(String strategyExecutionId)
+    {
+        return r2dbcRepository.findAllByStrategyExecutionId(strategyExecutionId)
             .map(mapper::toDomainObject)
             .collectList()
             .block();

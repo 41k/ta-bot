@@ -2,11 +2,16 @@ import { Tick } from './tick.model';
 
 export class Trade {
   constructor(
-    public strategyId: string,
-    public exchangeGatewayId: string,
+    public exchangeGateway: string,
+    public strategyExecutionId: string,
+    public strategyName: string,
+    public symbol: string,
+    public amount: number,
+    public totalProfit: number,
+    public absoluteProfit: number,
+    public interval: string,
     public entryTimestamp: number,
     public exitTimestamp: number,
-    public profit: number,
     public ticks: Array<Tick>
   ) {}
 }

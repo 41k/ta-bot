@@ -1,15 +1,21 @@
 <div class="modal-header">
-    <div class="badge float-left" [ngClass]="trade.profit>0?'badge-success':'badge-danger'">
-        {{trade.profit > 0 ? '+' : ''}}{{trade.profit}}
+    <div class="badge float-left" [ngClass]="trade.absoluteProfit>0?'badge-success':'badge-danger'">
+        {{trade.absoluteProfit > 0 ? '+' : ''}}{{trade.absoluteProfit.toFixed(2)}}
     </div>
     <div class="float-right">
         <div class="badge badge-primary">
             <fa-icon icon="exchange-alt"></fa-icon>
-            <span>{{trade.exchangeGatewayId}}</span>
+            <span>{{trade.exchangeGateway}}</span>
+        </div>
+        <div class="badge badge-primary">
+            {{trade.symbol}}
+        </div>
+        <div class="badge badge-primary">
+            {{intervalDictionary[trade.interval]}}
         </div>
         <div class="badge badge-primary">
             <fa-icon icon="random"></fa-icon>
-            <span>{{trade.strategyId}}</span>
+            <span>{{trade.strategyName}}</span>
         </div>
     </div>
 </div>

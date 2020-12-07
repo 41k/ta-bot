@@ -24,6 +24,14 @@
                 </a>
             </li>
             <li class="nav-item" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+                <a class="nav-link" routerLink="strategy-executions" (click)="collapseNavbar()">
+                    <span>
+                        <fa-icon icon="play-circle" [fixedWidth]="true"></fa-icon>
+                        <span jhiTranslate="global.menu.strategy-executions">Strategy executions</span>
+                    </span>
+                </a>
+            </li>
+            <li class="nav-item" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
                 <a class="nav-link" routerLink="history" (click)="collapseNavbar()">
                     <span>
                         <fa-icon icon="history" [fixedWidth]="true"></fa-icon>

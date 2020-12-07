@@ -22,13 +22,16 @@ import java.util.List;
 
 public class RsiStrategy1Factory extends AbstractStrategyFactory
 {
+    private static final String STRATEGY_ID = "0e18f4e3-e645-46c9-9565-3344f726f1e1";
+    private static final String STRATEGY_NAME = "RSI-1";
+
     private final ClosePriceIndicator closePriceIndicator;
     private final RSIIndicator rsiIndicator;
     private final RSILevelIndicator rsiLevel30Indicator;
 
     public RsiStrategy1Factory()
     {
-        super("RSI#1");
+        super(STRATEGY_ID, STRATEGY_NAME);
         this.closePriceIndicator = new ClosePriceIndicator(series);
         this.rsiIndicator = new RSIIndicator(closePriceIndicator, 12);
         this.rsiLevel30Indicator = new RSILevelIndicator(series, series.numOf(30));

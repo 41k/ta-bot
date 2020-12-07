@@ -15,6 +15,8 @@ public interface StrategyFactory
 
     String getStrategyId();
 
+    String getStrategyName();
+
     BarSeries getBarSeries();
 
     List<Indicator<Num>> getNumIndicators();

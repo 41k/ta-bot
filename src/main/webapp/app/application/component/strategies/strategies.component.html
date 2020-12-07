@@ -1,70 +1,19 @@
 <div class="row">
-    <div class="col-md-12 mb-5" *ngIf="!exchangeGateways || exchangeGateways.length === 0">
-        <div class="alert alert-dismissible alert-primary">
-            <strong>Exchange gateways are not configured.</strong>
-        </div>
-    </div>
-    <div class="col-md-12 mb-5" *ngIf="exchangeGateways && exchangeGateways.length > 0">
-        <div class="input-group">
-            <div class="input-group-prepend">
-                <span class="input-group-text">Exchange gateway</span>
-            </div>
-            <select class="custom-select" [(ngModel)]="selectedExchangeGateway" (change)="loadStrategies()">
-                <option *ngFor="let exchangeGateway of exchangeGateways" [value]="exchangeGateway" [selected]="exchangeGateway==selectedExchangeGateway">
-                    {{exchangeGateway}}
-                </option>
-            </select>
-        </div>
-    </div>
-    <div class="col-md-12 mb-4" *ngIf="activeStrategies && activeStrategies.length > 0">
-        <div class="badge badge-success mb-1">
-            <fa-icon icon="play-circle"></fa-icon>
-            <strong>Active strategies</strong>
-        </div>
+    <div class="col-md-12 mb-4" *ngIf="strategies && strategies.length > 0">
         <table class="table table-bordered">
             <thead class="thead-light">
                 <tr>
-                    <th scope="col">Id</th>
-                    <th scope="col">Status</th>
+                    <th scope="col">Strategy</th>
                     <th scope="col">Action</th>
                 </tr>
             </thead>
             <tbody>
-                <tr *ngFor="let strategy of activeStrategies">
+                <tr *ngFor="let strategy of strategies">
                     <td>
-                        <strong>{{strategy.strategyId}}</strong>
+                        <strong>{{strategy.name}}</strong>
                     </td>
                     <td>
-                        <span class="badge" [ngClass]="strategy.status==='STOPPING'?'badge-secondary':'badge-success'">
-                            {{strategy.status}}
-                        </span>
-                    </td>
-                    <td>
-                        <button type="button" class="btn btn-sm btn-outline-secondary" *ngIf="strategy.status!=='STOPPING'" (click)="deactivateStrategy(strategy.strategyId)">Deactivate</button>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
-    <div class="col-md-12 mb-4" *ngIf="inactiveStrategies && inactiveStrategies.length > 0">
-        <div class="badge badge-primary mb-1">
-            <fa-icon icon="stop-circle"></fa-icon>
-            <strong>Inactive strategies</strong>
-        </div>
-        <table class="table table-bordered">
-            <thead class="thead-light">
-                <tr>
-                    <th scope="col">Id</th>
-                    <th scope="col">Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr *ngFor="let id of inactiveStrategies">
-                    <td>
-                        <strong>{{id}}</strong>
-                    </td>
-                    <td>
-                        <button type="button" class="btn btn-sm btn-outline-primary" (click)="activateStrategy(id)">Activate</button>
+                        <button type="button" class="btn btn-sm btn-success" (click)="activateStrategy(strategy)">Run execution</button>
                     </td>
                 </tr>
             </tbody>
