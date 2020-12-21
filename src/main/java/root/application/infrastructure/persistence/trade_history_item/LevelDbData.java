@@ -10,8 +10,8 @@ import root.application.domain.level.Level;
 @AllArgsConstructor
 public class LevelDbData
 {
-    String name;
-    double value;
+    private String name;
+    private double value;
 
     public Level toDomainObject()
     {

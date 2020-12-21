@@ -1,11 +1,9 @@
 package root.application.application.model;
 
-import lombok.Builder;
 import lombok.Value;
 
 @Value
-@Builder
-public class ExchangeGatewayInfo
+public class NotActivatedExchangeGateway
 {
     String id;
     String name;

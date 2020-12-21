@@ -47,6 +47,7 @@ import {
   faRandom,
   faPlayCircle,
   faPause,
+  faCogs,
 } from '@fortawesome/free-solid-svg-icons';
 
 export const fontAwesomeIcons = [
@@ -97,4 +98,5 @@ export const fontAwesomeIcons = [
   faRandom,
   faPlayCircle,
   faPause,
+  faCogs,
 ];

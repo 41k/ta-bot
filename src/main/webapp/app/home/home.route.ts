@@ -1,12 +1,12 @@
 import { Route } from '@angular/router';
 
-import { DashboardComponent } from '../application/component/dashboard/dashboard.component';
+import { SignInComponent } from '../shared/sign-in/sign-in.component';
 
 export const HOME_ROUTE: Route = {
   path: '',
-  component: DashboardComponent,
+  component: SignInComponent,
   data: {
     authorities: [],
-    pageTitle: 'dashboard.title',
+    pageTitle: 'login.form.button',
   },
 };

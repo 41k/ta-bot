@@ -1,0 +1,29 @@
+<button *ngIf="notActivatedExchangeGateways && notActivatedExchangeGateways.length > 0" type="button" class="btn btn-success mb-4" (click)="addExchangeGateway()">Add exchange gateway</button>
+
+<div *ngIf="activatedExchangeGateways && activatedExchangeGateways.length > 0" class="row">
+    <div *ngFor="let exchangeGateway of activatedExchangeGateways" class="col-md-4 mb-3">
+        <div class="card bg-light mb-3">
+            <div class="card-header">
+                <fa-icon icon="exchange-alt" [fixedWidth]="true"></fa-icon>
+                <span>{{exchangeGateway.name}}</span>
+                <button type="button" class="btn btn-danger btn-sm float-right" (click)="deleteExchangeGateway(exchangeGateway.id, exchangeGateway.accountId)">
+                    <fa-icon icon="trash-alt"></fa-icon>
+                </button>
+            </div>
+            <div class="card-body">
+                <div *ngFor="let configurationEntry of exchangeGateway.accountConfiguration | keyvalue" class="row mb-2">
+                    <div class="col-sm-6">{{exchangeGatewayAccountConfigurationPropertyDictionary[configurationEntry.key]}}:</div>
+                    <div class="col-sm-6">{{configurationEntry.value}}</div>
+                </div>
+<!--                <div class="row mb-2">-->
+<!--                    <div class="col-sm-6">API Key:</div>-->
+<!--                    <div class="col-sm-6">Ud45********i57</div>-->
+<!--                </div>-->
+<!--                <div class="row mb-2">-->
+<!--                    <div class="col-sm-6">Secret Key:</div>-->
+<!--                    <div class="col-sm-6">Dd56********0f3</div>-->
+<!--                </div>-->
+            </div>
+        </div>
+    </div>
+</div>

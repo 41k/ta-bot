@@ -6,16 +6,18 @@ import { Trade } from '../../model/trade.model';
 import { Tick } from '../../model/tick.model';
 import { Level } from '../../model/level.model';
 import { IntervalDictionary } from '../../model/interval-dictionary.model';
+import { SymbolDictionary } from '../../model/symbol-dictionary.model';
 
 @Component({
   selector: 'jhi-trade-chart',
   templateUrl: './trade.component.html',
 })
 export class TradeComponent {
-  private additionalChartIndicatorTypes: string[] = ['RSI', 'MACD', 'OBV'];
+  private additionalChartIndicatorTypes: string[] = ['RSI', 'MACD', 'OBV', 'WR'];
   private chartTimeFormat = 'HH:mm:ss';
 
   intervalDictionary = IntervalDictionary;
+  symbolDictionary = SymbolDictionary;
   trade!: Trade;
 
   @ViewChild('chart') chart!: ChartComponent;

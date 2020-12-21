@@ -1,13 +1,15 @@
-package root.application.domain.strategy.sma;
+package root.application.domain.strategy.qa;
 
-import org.ta4j.core.BaseStrategy;
+import org.ta4j.core.BarSeries;
 import org.ta4j.core.Rule;
-import org.ta4j.core.Strategy;
 import org.ta4j.core.indicators.helpers.ClosePriceIndicator;
+import org.ta4j.core.num.Num;
 import org.ta4j.core.trading.rules.CrossedDownIndicatorRule;
 import org.ta4j.core.trading.rules.CrossedUpIndicatorRule;
+import root.application.domain.indicator.Indicator;
 import root.application.domain.indicator.sma.SMAIndicator;
 import root.application.domain.strategy.AbstractStrategyFactory;
+import root.application.domain.strategy.Strategy;
 
 import java.util.List;
 
@@ -26,26 +28,22 @@ public class SmaStrategy5Factory extends AbstractStrategyFactory
     private static final String STRATEGY_ID = "ed2fb8fb-d1b4-4bf2-b9c5-68074931e2a8";
     private static final String STRATEGY_NAME = "SMA-5";
 
-    private final ClosePriceIndicator closePriceIndicator;
-    private final SMAIndicator shortSmaIndicator;
-    private final SMAIndicator mediumSmaIndicator;
-    private final SMAIndicator longSmaIndicator;
-
     public SmaStrategy5Factory()
     {
         super(STRATEGY_ID, STRATEGY_NAME);
-        this.closePriceIndicator = new ClosePriceIndicator(series);
-        this.shortSmaIndicator = new SMAIndicator(closePriceIndicator, 7);
-        this.mediumSmaIndicator = new SMAIndicator(closePriceIndicator, 25);
-        this.longSmaIndicator = new SMAIndicator(closePriceIndicator, 100);
-        numIndicators.addAll(List.of(
-            shortSmaIndicator, mediumSmaIndicator, longSmaIndicator
-        ));
     }
 
     @Override
-    public Strategy create()
+    public Strategy create(BarSeries series)
     {
+        var closePriceIndicator = new ClosePriceIndicator(series);
+        var shortSmaIndicator = new SMAIndicator(closePriceIndicator, 7);
+        var mediumSmaIndicator = new SMAIndicator(closePriceIndicator, 25);
+        var longSmaIndicator = new SMAIndicator(closePriceIndicator, 100);
+        var numIndicators = List.<Indicator<Num>>of(
+            shortSmaIndicator, mediumSmaIndicator, longSmaIndicator
+        );
+
         Rule entryRule = // Buy rule:
                 // (shortSma crosses down mediumSma)
                 new CrossedDownIndicatorRule(shortSmaIndicator, mediumSmaIndicator);
@@ -54,7 +52,7 @@ public class SmaStrategy5Factory extends AbstractStrategyFactory
                 // (closePrise crosses up mediumSma)
                 new CrossedUpIndicatorRule(closePriceIndicator, mediumSmaIndicator);
 
-        return new BaseStrategy(strategyId, entryRule, exitRule);
+        return new Strategy(STRATEGY_ID, STRATEGY_NAME, numIndicators, entryRule, exitRule);
     }
 }
 

@@ -20,7 +20,7 @@ export class StrategiesComponent {
     this.strategyApiClient.getStrategies().subscribe((response: HttpResponse<Strategy[]>) => {
       const strategies = response.body;
       if (strategies && strategies.length > 0) {
-        this.strategies = strategies;
+        this.strategies = strategies.sort((s1, s2) => (s1.name > s2.name ? 1 : -1));
       } else {
         this.strategies = [];
       }

@@ -4,13 +4,11 @@ import org.springframework.data.domain.Pageable;
 import root.application.application.model.HistoryFilter;
 import root.application.domain.history.TradeHistoryItem;
 
-import java.util.List;
+import java.util.Collection;
 
-public interface ApplicationLevelTradeHistoryItemRepository {
+public interface ApplicationLevelTradeHistoryItemRepository
+{
+    Collection<TradeHistoryItem> findTrades(HistoryFilter filter, Pageable pageable);
 
-    List<TradeHistoryItem> findAllTrades();
-
-    List<TradeHistoryItem> findTrades(HistoryFilter filter, Pageable pageable);
-
-    List<TradeHistoryItem> findTradesByStrategyExecutionId(String strategyExecutionId);
+    Collection<TradeHistoryItem> findTradesByStrategyExecutionId(String strategyExecutionId);
 }

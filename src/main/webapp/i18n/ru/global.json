@@ -5,8 +5,12 @@
     "menu": {
       "home": "Главная",
       "dashboard": "Обзор",
-      "strategies": "Стратегии",
-      "strategy-executions": "Запуски стратегий",
+      "trading-setup": {
+        "main": "Настройка торговли",
+        "exchange-gateways": "Тогровые площадки",
+        "strategies": "Стратегии",
+        "strategy-executions": "Запуски стратегий"
+      },
       "history": "История торгов",
       "jhipster-needle-menu-add-element": "JHipster will add additional menu entries here (do not translate!)",
       "entities": {
@@ -47,7 +51,9 @@
       "confirmpassword.label": "Подтверждение нового пароля",
       "confirmpassword.placeholder": "Подтвердите новый пароль",
       "email.label": "Email",
-      "email.placeholder": "Ваш email"
+      "email.placeholder": "Ваш email",
+      "login": "Логин",
+      "password": "Пароль"
     },
     "messages": {
       "info": {

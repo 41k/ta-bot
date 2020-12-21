@@ -1,33 +1,38 @@
 package root.application.application.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import root.application.application.StrategyExecutionManagersStore;
 import root.application.application.model.StrategyExecutionInfo;
-import root.application.application.model.StrategyExecutionStatistics;
 import root.application.application.model.command.RunStrategyExecutionCommand;
 import root.application.application.model.command.StopStrategyExecutionCommand;
-import root.application.application.repository.ApplicationLevelTradeHistoryItemRepository;
-import root.application.domain.history.TradeHistoryItem;
+import root.application.domain.history.TradeHistoryItemRepository;
 import root.application.domain.trading.StrategyExecution;
 import root.application.domain.trading.StrategyExecutionContext;
 import root.application.domain.trading.StrategyExecutionsManager;
 
+import java.util.Collection;
 import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
 
-import static java.lang.String.format;
-import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
 
+@Slf4j
 @RequiredArgsConstructor
 public class StrategyExecutionService
 {
-    private final Map<String, StrategyExecutionsManager> strategyExecutionManagersStore;
-    private final ApplicationLevelTradeHistoryItemRepository tradeHistoryItemRepository;
+    private final StrategyExecutionManagersStore strategyExecutionManagersStore;
+    private final ExchangeGatewayAccountService exchangeGatewayAccountService;
+    private final ExchangeGatewayService exchangeGatewayService;
+    private final StrategyService strategyService;
+    private final HistoryService historyService;
+    private final TradeHistoryItemRepository tradeHistoryItemRepository;
 
-    public List<StrategyExecutionInfo> getStrategyExecutions(String exchangeGatewayId)
+    public Collection<StrategyExecutionInfo> getStrategyExecutions(String exchangeGatewayId, Long exchangeGatewayAccountId)
     {
-        return getStrategyExecutionsManager(exchangeGatewayId).getStrategyExecutions()
+        exchangeGatewayAccountService.verifyAccount(exchangeGatewayId, exchangeGatewayAccountId);
+        return strategyExecutionManagersStore.get(exchangeGatewayAccountId)
+            .map(StrategyExecutionsManager::getStrategyExecutions)
+            .orElseGet(List::of)
             .stream()
             .map(this::buildStrategyExecutionInfo)
             .collect(toList());
@@ -35,35 +40,49 @@ public class StrategyExecutionService
 
     public void execute(RunStrategyExecutionCommand command)
     {
+        log.info("Try to run strategy execution: {}", command);
         var exchangeGatewayId = command.getExchangeGatewayId();
-        var strategyExecutionsManager = getStrategyExecutionsManager(exchangeGatewayId);
+        var exchangeGateway = exchangeGatewayService.getExchangeGateway(exchangeGatewayId);
+        var exchangeGatewayAccount = exchangeGatewayAccountService.getAccount(exchangeGatewayId);
+        var strategyId = command.getStrategyId();
+        var strategyFactory = strategyService.getStrategyFactory(strategyId);
         var strategyExecutionContext = StrategyExecutionContext.builder()
-            .strategyId(command.getStrategyId())
+            .userId(exchangeGatewayAccount.getUserId().toString())
+            .exchangeGateway(exchangeGateway)
+            .exchangeGatewayAccountConfiguration(exchangeGatewayAccount.getConfiguration())
+            .strategyFactory(strategyFactory)
             .symbol(command.getSymbol())
             .amount(command.getAmount())
             .interval(command.getInterval())
             .build();
+        var exchangeGatewayAccountId = exchangeGatewayAccount.getId();
+        var strategyExecutionsManager = getOrCreateStrategyExecutionsManager(exchangeGatewayAccountId);
         strategyExecutionsManager.runStrategyExecution(strategyExecutionContext);
     }
 
     public void execute(StopStrategyExecutionCommand command)
     {
+        log.info("Try to stop strategy execution: {}", command);
         var exchangeGatewayId = command.getExchangeGatewayId();
-        var strategyExecutionsManager = getStrategyExecutionsManager(exchangeGatewayId);
+        var exchangeGatewayAccountId = command.getExchangeGatewayAccountId();
+        exchangeGatewayAccountService.verifyAccount(exchangeGatewayId, exchangeGatewayAccountId);
+        var strategyExecutionsManager = strategyExecutionManagersStore.getOrThrowException(exchangeGatewayAccountId);
         var strategyExecutionId = command.getStrategyExecutionId();
         strategyExecutionsManager.stopStrategyExecution(strategyExecutionId);
     }
 
-    private StrategyExecutionsManager getStrategyExecutionsManager(String exchangeGatewayId)
+    private StrategyExecutionsManager getOrCreateStrategyExecutionsManager(Long exchangeGatewayAccountId)
     {
-        return ofNullable(strategyExecutionManagersStore.get(exchangeGatewayId)).orElseThrow(() -> new NoSuchElementException(
-            format("Strategy executions manager for exchange gateway [%s] is not found.", exchangeGatewayId)));
+        var strategyExecutionsManager = strategyExecutionManagersStore.get(exchangeGatewayAccountId)
+            .orElseGet(() -> new StrategyExecutionsManager(tradeHistoryItemRepository));
+        strategyExecutionManagersStore.put(exchangeGatewayAccountId, strategyExecutionsManager);
+        return strategyExecutionsManager;
     }
 
     private StrategyExecutionInfo buildStrategyExecutionInfo(StrategyExecution.State strategyExecutionState)
     {
         var strategyExecutionId = strategyExecutionState.getId();
-        var strategyExecutionStatistics = calculateStrategyExecutionStatistics(strategyExecutionId);
+        var strategyExecutionStatistics = historyService.getStrategyExecutionStatistics(strategyExecutionId);
         return StrategyExecutionInfo.builder()
             .id(strategyExecutionId)
             .startTime(strategyExecutionState.getStartTime())
@@ -73,19 +92,6 @@ public class StrategyExecutionService
             .amount(strategyExecutionState.getAmount())
             .interval(strategyExecutionState.getInterval())
             .statistics(strategyExecutionStatistics)
-            .build();
-    }
-
-    private StrategyExecutionStatistics calculateStrategyExecutionStatistics(String strategyExecutionId)
-    {
-        var trades = tradeHistoryItemRepository.findTradesByStrategyExecutionId(strategyExecutionId);
-        var nProfitableTrades = trades.stream().mapToDouble(TradeHistoryItem::getTotalProfit).filter(profit -> profit > 0).count();
-        var nUnprofitableTrades = trades.stream().mapToDouble(TradeHistoryItem::getTotalProfit).filter(profit -> profit <= 0).count();
-        var totalProfit = trades.stream().mapToDouble(TradeHistoryItem::getTotalProfit).sum();
-        return StrategyExecutionStatistics.builder()
-            .nProfitableTrades(nProfitableTrades)
-            .nUnprofitableTrades(nUnprofitableTrades)
-            .totalProfit(totalProfit)
             .build();
     }
 }

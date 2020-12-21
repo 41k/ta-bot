@@ -29,9 +29,17 @@ class TradeHistoryItemDbEntryR2dbcRepositoryInternalImpl implements TradeHistory
 
     public Flux<TradeHistoryItemDbEntry> findAllByFilter(HistoryFilter filter, Pageable pageable)
     {
-        var criteria = Criteria
-            .where("entry_timestamp").greaterThanOrEquals(filter.getFromTimestamp())
-            .and("exit_timestamp").lessThanOrEquals(filter.getToTimestamp());
+        var criteria = Criteria.where("user_id").is(filter.getUserId());
+        var fromTimestamp = filter.getFromTimestamp();
+        if (nonNull(fromTimestamp))
+        {
+            criteria = criteria.and("entry_timestamp").greaterThanOrEquals(fromTimestamp);
+        }
+        var toTimestamp = filter.getToTimestamp();
+        if (nonNull(toTimestamp))
+        {
+            criteria = criteria.and("exit_timestamp").lessThanOrEquals(toTimestamp);
+        }
         var exchangeGateway = filter.getExchangeGateway();
         if (nonNull(exchangeGateway))
         {

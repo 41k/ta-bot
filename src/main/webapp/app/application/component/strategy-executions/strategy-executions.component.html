@@ -49,7 +49,7 @@
                         </span>
                     </td>
                     <td>
-                        {{strategyExecution.symbol}}
+                        {{symbolDictionary[strategyExecution.symbol]}}
                     </td>
                     <td>
                         {{strategyExecution.amount}}
@@ -64,8 +64,14 @@
                         {{strategyExecution.statistics.nunprofitableTrades}}
                     </td>
                     <td>
-                        <div class="badge float-left" [ngClass]="strategyExecution.statistics.totalProfit>0?'badge-success':'badge-danger'">
-                            {{strategyExecution.statistics.totalProfit > 0 ? '+' : ''}}{{strategyExecution.statistics.totalProfit.toFixed(2)}}
+                        <div class="badge float-left badge-secondary" *ngIf="strategyExecution.statistics.totalProfit == 0">
+                            {{strategyExecution.statistics.totalProfit.toFixed(2)}}
+                        </div>
+                        <div class="badge float-left badge-success" *ngIf="strategyExecution.statistics.totalProfit > 0">
+                            {{'+' + strategyExecution.statistics.totalProfit.toFixed(2)}}
+                        </div>
+                        <div class="badge float-left badge-danger" *ngIf="strategyExecution.statistics.totalProfit < 0">
+                            {{strategyExecution.statistics.totalProfit.toFixed(2)}}
                         </div>
                     </td>
                     <td>

@@ -8,5 +8,6 @@ import lombok.Value;
 public class StopStrategyExecutionCommand
 {
     String exchangeGatewayId;
+    Long exchangeGatewayAccountId;
     String strategyExecutionId;
 }

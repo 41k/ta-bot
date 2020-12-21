@@ -117,6 +117,7 @@ public class AccountResource {
     @PostMapping("/account")
     public Mono<Void> saveAccount(@Valid @RequestBody UserDTO userDTO) {
         return SecurityUtils.getCurrentUserLogin()
+            .doOnNext(login -> System.out.println("###" + login))
             .switchIfEmpty(Mono.error(new AccountResourceException("Current user login not found")))
             .flatMap(userLogin -> userRepository.findOneByEmailIgnoreCase(userDTO.getEmail())
                 .filter(existingUser -> !existingUser.getLogin().equalsIgnoreCase(userLogin))

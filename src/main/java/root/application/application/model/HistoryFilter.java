@@ -8,9 +8,10 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
+@Builder(toBuilder = true)
 public class HistoryFilter
 {
+    private String userId;
     private Long fromTimestamp;
     private Long toTimestamp;
     private String exchangeGateway;

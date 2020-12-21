@@ -3,6 +3,8 @@ package root.application.domain.history;
 import lombok.Builder;
 import lombok.NonNull;
 import lombok.Value;
+import org.ta4j.core.BarSeries;
+import root.application.domain.strategy.Strategy;
 import root.application.domain.strategy.StrategyFactory;
 import root.application.domain.trading.ExchangeGateway;
 import root.application.domain.trading.StrategyExecutionContext;
@@ -12,11 +14,11 @@ import root.application.domain.trading.StrategyExecutionContext;
 public class TradeContext
 {
     @NonNull
-    ExchangeGateway exchangeGateway;
-    @NonNull
     String strategyExecutionId;
     @NonNull
     StrategyExecutionContext strategyExecutionContext;
     @NonNull
-    StrategyFactory strategyFactory;
+    BarSeries series;
+    @NonNull
+    Strategy strategy;
 }

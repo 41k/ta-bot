@@ -30,6 +30,11 @@ const LAYOUT_ROUTES = [navbarRoute, ...errorRoute];
           loadChildren: () => import('./application/component/dashboard/dashboard.module').then(m => m.DashboardModule),
         },
         {
+          path: 'exchange-gateways',
+          loadChildren: () =>
+            import('./application/component/exchange-gateways/exchange-gateways.module').then(m => m.ExchangeGatewaysModule),
+        },
+        {
           path: 'strategies',
           loadChildren: () => import('./application/component/strategies/strategies.module').then(m => m.StrategiesModule),
         },
@@ -41,6 +46,10 @@ const LAYOUT_ROUTES = [navbarRoute, ...errorRoute];
         {
           path: 'history',
           loadChildren: () => import('./application/component/history/history.module').then(m => m.HistoryModule),
+        },
+        {
+          path: 'sign-in',
+          loadChildren: () => import('./shared/sign-in/sign-in.module').then(m => m.SignInModule),
         },
         ...LAYOUT_ROUTES,
       ],

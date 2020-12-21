@@ -12,6 +12,7 @@ import org.ta4j.core.BaseBar;
 import org.ta4j.core.num.Num;
 import org.ta4j.core.num.PrecisionNum;
 import root.application.domain.trading.Interval;
+import root.application.domain.trading.Symbol;
 
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -41,6 +42,9 @@ public class BarDbEntry implements Serializable
     @NotNull
     private String exchangeGateway;
     @NotNull
+    @Enumerated(EnumType.STRING)
+    private Symbol symbol;
+    @NotNull
     @Column("time_interval")
     @Enumerated(EnumType.STRING)
     private Interval interval;
@@ -67,10 +71,11 @@ public class BarDbEntry implements Serializable
         return new BaseBar(barDuration, zonedBarTime, open, high, low, close, volume, AMOUNT, TRADES, NUM_FUNCTION);
     }
 
-    public static BarDbEntry fromDomainObject(Bar bar, String exchangeGateway, Interval interval)
+    public static BarDbEntry fromDomainObject(Bar bar, String exchangeGateway, Symbol symbol, Interval interval)
     {
         return BarDbEntry.builder()
             .exchangeGateway(exchangeGateway)
+            .symbol(symbol)
             .interval(interval)
             .duration(bar.getTimePeriod().toMillis())
             .timestamp(bar.getEndTime().toInstant().toEpochMilli())

@@ -1,4 +1,4 @@
-package root.application.infrastructure.exchange_gateway;
+package root.application.infrastructure.exchange_gateway.stub;
 
 import com.opencsv.CSVReader;
 import lombok.extern.slf4j.Slf4j;

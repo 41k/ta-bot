@@ -20,20 +20,20 @@ export class StrategyExecutionApiClient {
     this.urlPrefix = SERVER_API_URL + '/api/exchange-gateways/';
   }
 
-  getStrategyExecutions(exchangeGatewayId: string): Observable<HttpResponse<StrategyExecution[]>> {
-    const requestURL = this.urlPrefix + `${exchangeGatewayId}/strategy-executions`;
+  getStrategyExecutions(exchangeGatewayId: string, accountId: number): Observable<HttpResponse<StrategyExecution[]>> {
+    const requestURL = this.urlPrefix + `${exchangeGatewayId}/accounts/${accountId}/strategy-executions`;
     return this.http.get<StrategyExecution[]>(requestURL, {
       observe: 'response',
     });
   }
 
-  runStrategyExecution(exchangeGatewayId: string, requestBody: RunStrategyExecutionRequest): Observable<{}> {
-    const requestURL = this.urlPrefix + `${exchangeGatewayId}/strategy-executions`;
+  runStrategyExecution(exchangeGatewayId: string, accountId: number, requestBody: RunStrategyExecutionRequest): Observable<{}> {
+    const requestURL = this.urlPrefix + `${exchangeGatewayId}/accounts/${accountId}/strategy-executions`;
     return this.http.post(requestURL, requestBody);
   }
 
-  stopStrategyExecution(exchangeGatewayId: string, strategyExecutionId: string): Observable<{}> {
-    const requestURL = this.urlPrefix + `${exchangeGatewayId}/strategy-executions/${strategyExecutionId}`;
+  stopStrategyExecution(exchangeGatewayId: string, accountId: number, strategyExecutionId: string): Observable<{}> {
+    const requestURL = this.urlPrefix + `${exchangeGatewayId}/accounts/${accountId}/strategy-executions/${strategyExecutionId}`;
     return this.http.delete(requestURL);
   }
 }

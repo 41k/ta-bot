@@ -8,9 +8,31 @@
 
     <changeSet id="00000000000003" author="ta-bot-dev">
 
+        <createTable tableName="exchange_gateway_account">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="user_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="exchange_gateway_id" type="varchar(150)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="configuration" type="text">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addUniqueConstraint
+            columnNames="user_id, exchange_gateway_id"
+            constraintName="exchange_gateway_account_uniqueness"
+            tableName="exchange_gateway_account"/>
+
         <createTable tableName="trade_history_item">
             <column name="id" type="bigint" autoIncrement="true">
                 <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="user_id" type="varchar(150)">
+                <constraints nullable="false"/>
             </column>
             <column name="exchange_gateway" type="varchar(150)">
                 <constraints nullable="false"/>
@@ -42,7 +64,7 @@
             <column name="exit_timestamp" type="bigint">
                 <constraints nullable="false"/>
             </column>
-            <column name="ticks" type="text">
+            <column name="ticks" type="mediumtext">
                 <constraints nullable="false"/>
             </column>
         </createTable>
@@ -52,6 +74,9 @@
                 <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="exchange_gateway" type="varchar(150)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="symbol" type="varchar(150)">
                 <constraints nullable="false"/>
             </column>
             <column name="time_interval" type="varchar(150)">
@@ -80,7 +105,7 @@
             </column>
         </createTable>
         <addUniqueConstraint
-            columnNames="exchange_gateway, duration, timestamp"
+            columnNames="exchange_gateway, symbol, time_interval, timestamp"
             constraintName="bar_uniqueness"
             tableName="bar"/>
 

@@ -1,4 +1,4 @@
-<nav class="navbar navbar-light navbar-expand-md bg-light">
+<nav class="navbar navbar-light navbar-expand-md bg-light" *ngIf="isAuthenticated()">
     <a class="navbar-brand logo" routerLink="dashboard" (click)="collapseNavbar()">
         <strong jhiTranslate="global.title" class="navbar-title">TA-B0T</strong> <span class="navbar-version">{{ version }}</span>
     </a>
@@ -7,7 +7,7 @@
     </a>
     <div class="navbar-collapse collapse" id="navbarResponsive" [ngbCollapse]="isNavbarCollapsed" [ngSwitch]="isAuthenticated()">
         <ul class="navbar-nav ml-auto">
-            <li class="nav-item" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+            <li *jhiHasAnyAuthority="'ROLE_USER'" class="nav-item" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
                 <a class="nav-link" routerLink="dashboard" (click)="collapseNavbar()">
                     <span>
                         <fa-icon icon="chart-line" [fixedWidth]="true"></fa-icon>
@@ -15,23 +15,41 @@
                     </span>
                 </a>
             </li>
-            <li class="nav-item" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
-                <a class="nav-link" routerLink="strategies" (click)="collapseNavbar()">
+            <li *jhiHasAnyAuthority="'ROLE_USER'" ngbDropdown class="nav-item dropdown pointer" display="dynamic" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+                <a class="nav-link dropdown-toggle" ngbDropdownToggle href="javascript:void(0);" id="trading-setup-menu">
                     <span>
-                        <fa-icon icon="random" [fixedWidth]="true"></fa-icon>
-                        <span jhiTranslate="global.menu.strategies">Strategies</span>
+                        <fa-icon icon="cogs"></fa-icon>
+                        <span jhiTranslate="global.menu.trading-setup.main">Trading setup</span>
                     </span>
                 </a>
+                <ul class="dropdown-menu" ngbDropdownMenu aria-labelledby="trading-setup-menu">
+                    <li>
+                        <a class="dropdown-item" routerLink="exchange-gateways" routerLinkActive="active" (click)="collapseNavbar()">
+                            <span>
+                                <fa-icon icon="exchange-alt" [fixedWidth]="true"></fa-icon>
+                                <span jhiTranslate="global.menu.trading-setup.exchange-gateways">Exchange gateways</span>
+                            </span>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item" routerLink="strategies" routerLinkActive="active" (click)="collapseNavbar()">
+                            <span>
+                                <fa-icon icon="random" [fixedWidth]="true"></fa-icon>
+                                <span jhiTranslate="global.menu.trading-setup.strategies">Strategies</span>
+                            </span>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item" routerLink="strategy-executions" routerLinkActive="active" (click)="collapseNavbar()">
+                            <span>
+                                <fa-icon icon="play-circle" [fixedWidth]="true"></fa-icon>
+                                <span jhiTranslate="global.menu.trading-setup.strategy-executions">Strategy executions</span>
+                            </span>
+                        </a>
+                    </li>
+                </ul>
             </li>
-            <li class="nav-item" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
-                <a class="nav-link" routerLink="strategy-executions" (click)="collapseNavbar()">
-                    <span>
-                        <fa-icon icon="play-circle" [fixedWidth]="true"></fa-icon>
-                        <span jhiTranslate="global.menu.strategy-executions">Strategy executions</span>
-                    </span>
-                </a>
-            </li>
-            <li class="nav-item" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+            <li *jhiHasAnyAuthority="'ROLE_USER'" class="nav-item" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
                 <a class="nav-link" routerLink="history" (click)="collapseNavbar()">
                     <span>
                         <fa-icon icon="history" [fixedWidth]="true"></fa-icon>

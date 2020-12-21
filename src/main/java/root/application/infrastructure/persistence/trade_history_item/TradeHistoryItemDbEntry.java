@@ -1,10 +1,14 @@
 package root.application.infrastructure.persistence.trade_history_item;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 import root.application.domain.trading.Interval;
+import root.application.domain.trading.Symbol;
 
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -23,28 +27,31 @@ public class TradeHistoryItemDbEntry implements Serializable
     @Id
     private Long id;
     @NotNull
-    String exchangeGateway;
+    private String userId;
     @NotNull
-    String strategyExecutionId;
+    private String exchangeGateway;
     @NotNull
-    String strategyName;
+    private String strategyExecutionId;
     @NotNull
-    String symbol;
+    private String strategyName;
     @NotNull
-    Double amount;
+    @Enumerated(EnumType.STRING)
+    private Symbol symbol;
+    @NotNull
+    private Double amount;
+    @NotNull
+    @Column("time_interval")
+    @Enumerated(EnumType.STRING)
+    private Interval interval;
     @NotNull
     private Double totalProfit;
     @NotNull
     private Double absoluteProfit;
     @NotNull
-    @Column("time_interval")
-    @Enumerated(EnumType.STRING)
-    Interval interval;
-    @NotNull
     private Long entryTimestamp;
     @NotNull
     private Long exitTimestamp;
     @NotNull
-    @javax.persistence.Column(columnDefinition = "TEXT")
+    @javax.persistence.Column(columnDefinition = "MEDIUMTEXT")
     private String ticks;
 }

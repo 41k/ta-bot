@@ -4,11 +4,12 @@ import lombok.RequiredArgsConstructor;
 import root.application.application.model.StrategyInfo;
 import root.application.domain.strategy.StrategyFactory;
 
-import java.util.List;
+import java.util.Collection;
 import java.util.Map;
-import java.util.Set;
+import java.util.NoSuchElementException;
 
-import static java.util.stream.Collectors.toList;
+import static java.lang.String.format;
+import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toSet;
 
 @RequiredArgsConstructor
@@ -16,7 +17,7 @@ public class StrategyService
 {
     private final Map<String, StrategyFactory> strategyFactoriesStore;
 
-    public Set<StrategyInfo> getStrategies()
+    public Collection<StrategyInfo> getStrategies()
     {
         return strategyFactoriesStore.values()
             .stream()
@@ -26,5 +27,11 @@ public class StrategyService
                     .name(strategyFactory.getStrategyName())
                     .build())
             .collect(toSet());
+    }
+
+    public StrategyFactory getStrategyFactory(String strategyId)
+    {
+        return ofNullable(strategyFactoriesStore.get(strategyId)).orElseThrow(() ->
+            new NoSuchElementException(format("Strategy factory is not found for strategyId [%s].", strategyId)));
     }
 }

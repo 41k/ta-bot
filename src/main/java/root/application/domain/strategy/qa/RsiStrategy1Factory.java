@@ -1,8 +1,7 @@
-package root.application.domain.strategy.rsi;
+package root.application.domain.strategy.qa;
 
-import org.ta4j.core.BaseStrategy;
+import org.ta4j.core.BarSeries;
 import org.ta4j.core.Rule;
-import org.ta4j.core.Strategy;
 import org.ta4j.core.indicators.helpers.ClosePriceIndicator;
 import org.ta4j.core.num.Num;
 import org.ta4j.core.trading.rules.CrossedDownIndicatorRule;
@@ -11,6 +10,7 @@ import root.application.domain.indicator.Indicator;
 import root.application.domain.indicator.rsi.RSIIndicator;
 import root.application.domain.indicator.rsi.RSILevelIndicator;
 import root.application.domain.strategy.AbstractStrategyFactory;
+import root.application.domain.strategy.Strategy;
 
 import java.util.List;
 
@@ -25,24 +25,21 @@ public class RsiStrategy1Factory extends AbstractStrategyFactory
     private static final String STRATEGY_ID = "0e18f4e3-e645-46c9-9565-3344f726f1e1";
     private static final String STRATEGY_NAME = "RSI-1";
 
-    private final ClosePriceIndicator closePriceIndicator;
-    private final RSIIndicator rsiIndicator;
-    private final RSILevelIndicator rsiLevel30Indicator;
-
     public RsiStrategy1Factory()
     {
         super(STRATEGY_ID, STRATEGY_NAME);
-        this.closePriceIndicator = new ClosePriceIndicator(series);
-        this.rsiIndicator = new RSIIndicator(closePriceIndicator, 12);
-        this.rsiLevel30Indicator = new RSILevelIndicator(series, series.numOf(30));
-        numIndicators.addAll(List.of(
-                rsiIndicator, rsiLevel30Indicator
-        ));
     }
 
     @Override
-    public Strategy create()
+    public Strategy create(BarSeries series)
     {
+        var closePriceIndicator = new ClosePriceIndicator(series);
+        var rsiIndicator = new RSIIndicator(closePriceIndicator, 12);
+        var rsiLevel30Indicator = new RSILevelIndicator(series, series.numOf(30));
+        var numIndicators = List.<Indicator<Num>>of(
+            rsiIndicator, rsiLevel30Indicator
+        );
+
         Rule entryRule = // Buy rule:
                 // (rsi(12) crosses down rsiLevel(30))
                 new CrossedDownIndicatorRule(rsiIndicator, rsiLevel30Indicator);
@@ -51,7 +48,7 @@ public class RsiStrategy1Factory extends AbstractStrategyFactory
                 // (rsi(12) crosses up rsiLevel(30))
                 new CrossedUpIndicatorRule(rsiIndicator, rsiLevel30Indicator);
 
-        return new BaseStrategy(strategyId, entryRule, exitRule);
+        return new Strategy(STRATEGY_ID, STRATEGY_NAME, numIndicators, entryRule, exitRule);
     }
 }
 

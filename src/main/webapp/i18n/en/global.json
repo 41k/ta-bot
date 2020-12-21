@@ -5,8 +5,12 @@
     "menu": {
       "home": "Home",
       "dashboard": "Dashboard",
-      "strategies": "Strategies",
-      "strategy-executions": "Strategy executions",
+      "trading-setup": {
+        "main": "Trading setup",
+        "exchange-gateways": "Exchange gateways",
+        "strategies": "Strategies",
+        "strategy-executions": "Strategy executions"
+      },
       "history": "Trading history",
       "jhipster-needle-menu-add-element": "JHipster will add additional menu entries here (do not translate!)",
       "entities": {
@@ -47,7 +51,9 @@
       "confirmpassword.label": "New password confirmation",
       "confirmpassword.placeholder": "Confirm the new password",
       "email.label": "Email",
-      "email.placeholder": "Your email"
+      "email.placeholder": "Your email",
+      "login": "Login",
+      "password": "Password"
     },
     "messages": {
       "info": {

@@ -34,7 +34,7 @@
             </div>
             <select class="custom-select" [(ngModel)]="selectedStrategyExecutionId" (change)="loadTrades()">
                 <option *ngFor="let strategyExecution of strategyExecutions" [value]="strategyExecution.id" [selected]="strategyExecution.id==selectedStrategyExecutionId">
-                    {{strategyExecution.strategyName}} &#8212; {{strategyExecution.symbol}} &#8212; {{strategyExecution.amount}} &#8212; {{intervalDictionary[strategyExecution.interval]}}
+                    {{strategyExecution.strategyName}} &#8212; {{symbolDictionary[strategyExecution.symbol]}} &#8212; {{strategyExecution.amount}} &#8212; {{intervalDictionary[strategyExecution.interval]}}
                 </option>
             </select>
         </div>
@@ -100,7 +100,7 @@
             <td>
                 <strong>{{trade.value.absoluteProfit > 0 ? '+' : ''}}{{trade.value.absoluteProfit.toFixed(2)}}</strong>
             </td>
-            <td>{{trade.value.symbol}}</td>
+            <td>{{symbolDictionary[trade.value.symbol]}}</td>
             <td>{{trade.value.amount}}</td>
             <td>
                 <strong>{{trade.value.totalProfit > 0 ? '+' : ''}}{{trade.value.totalProfit}}</strong>

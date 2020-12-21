@@ -1,16 +1,6 @@
 package root.framework.service;
 
-import root.framework.config.Constants;
-import root.framework.domain.Authority;
-import root.framework.domain.User;
-import root.framework.repository.AuthorityRepository;
-import root.framework.repository.UserRepository;
-import root.framework.security.AuthoritiesConstants;
-import root.framework.security.SecurityUtils;
-import root.framework.service.dto.UserDTO;
-
 import io.github.jhipster.security.RandomUtil;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Pageable;
@@ -21,12 +11,21 @@ import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
+import root.framework.config.Constants;
+import root.framework.domain.Authority;
+import root.framework.domain.User;
+import root.framework.repository.AuthorityRepository;
+import root.framework.repository.UserRepository;
+import root.framework.security.AuthoritiesConstants;
+import root.framework.security.SecurityUtils;
+import root.framework.service.dto.UserDTO;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
-import java.util.*;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Service class for managing users.
@@ -234,6 +233,15 @@ public class UserService {
             })
             .doOnNext(user -> log.debug("Changed Information for User: {}", user))
             .then();
+    }
+
+    public Long getCurrentUserId()
+    {
+        // Todo: userId retrieval for multi-user usage of the application
+        // Where is a problem with userId retrieval in reactive env since
+        // SecurityUtils.getCurrentUserLogin() returns null if called not in reactive pipeline.
+        // https://stackoverflow.com/questions/51315378/reactivesecuritycontextholder-getcontext-is-empty-but-authenticationprincipal
+        return 1L;
     }
 
     @Transactional

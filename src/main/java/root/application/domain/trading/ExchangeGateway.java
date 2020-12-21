@@ -1,9 +1,6 @@
 package root.application.domain.trading;
 
-import org.ta4j.core.Bar;
-
-import java.util.Set;
-import java.util.function.Consumer;
+import java.util.Collection;
 
 public interface ExchangeGateway
 {
@@ -11,11 +8,17 @@ public interface ExchangeGateway
 
     String getName();
 
-    Set<Interval> getSupportedIntervals();
+    double getTransactionFee();
 
-    Set<String> getSupportedSymbols();
+    Collection<Symbol> getSupportedSymbols();
 
-    void subscribeToBarStream(Interval interval, Consumer<Bar> barConsumer);
+    Collection<Interval> getSupportedIntervals();
+
+    Collection<ExchangeGatewayAccountConfigurationProperty> getSupportedAccountConfigurationProperties();
+
+    void subscribeToBarStream(BarStreamSubscriptionContext subscriptionContext);
+
+    void unsubscribeFromBarStream(BarStreamSubscriptionContext subscriptionContext);
 
     TradingOperationResult buy(TradingOperationContext context);
 

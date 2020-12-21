@@ -8,6 +8,7 @@ import { TradeComponent } from '../trade/trade.component';
 import { ChartComponent } from 'ng-apexcharts';
 import { StrategyExecution } from '../../model/strategy-execution.model';
 import { IntervalDictionary } from '../../model/interval-dictionary.model';
+import { SymbolDictionary } from '../../model/symbol-dictionary.model';
 
 @Component({
   selector: 'jhi-history',
@@ -44,6 +45,7 @@ export class HistoryComponent {
   @ViewChild('chart') chart!: ChartComponent;
   chartOptions: Partial<any>;
 
+  symbolDictionary = SymbolDictionary;
   intervalDictionary = IntervalDictionary;
 
   constructor(private datePipe: DatePipe, private historyApiClient: HistoryApiClient, private modalService: NgbModal) {
@@ -69,8 +71,8 @@ export class HistoryComponent {
       .subscribe((response: HttpResponse<string[]>) => {
         const exchangeGateways = response.body;
         if (exchangeGateways && exchangeGateways.length > 0) {
-          this.exchangeGateways = exchangeGateways;
-          this.selectedExchangeGateway = exchangeGateways[0];
+          this.exchangeGateways = exchangeGateways.sort((g1, g2) => (g1 > g2 ? 1 : -1));
+          this.selectedExchangeGateway = this.exchangeGateways[0];
           this.loadStrategyExecutions();
         } else {
           this.exchangeGateways = [];
@@ -89,8 +91,8 @@ export class HistoryComponent {
       .subscribe((response: HttpResponse<StrategyExecution[]>) => {
         const strategyExecutions = response.body;
         if (strategyExecutions && strategyExecutions.length > 0) {
-          this.strategyExecutions = strategyExecutions;
-          this.selectedStrategyExecutionId = strategyExecutions[0].id;
+          this.strategyExecutions = strategyExecutions.sort((e1, e2) => (e1.strategyName > e2.strategyName ? 1 : -1));
+          this.selectedStrategyExecutionId = this.strategyExecutions[0].id;
           this.loadTrades();
         } else {
           this.strategyExecutions = [];
@@ -124,11 +126,13 @@ export class HistoryComponent {
   }
 
   private initTimeRangeFilter(): void {
-    this.fromTime = this.datePipe.transform(new Date(1597901099999).getTime(), this.rangeDateTimeFormat)!;
-    this.toTime = this.datePipe.transform(
-      new Date(this.fromTime).getTime() + this.initialTimeRangeLengthInMillis,
-      this.rangeDateTimeFormat
-    )!;
+    this.fromTime = this.datePipe.transform(Date.now() - this.initialTimeRangeLengthInMillis, this.rangeDateTimeFormat)!;
+    this.toTime = this.datePipe.transform(Date.now(), this.rangeDateTimeFormat)!;
+    // this.fromTime = this.datePipe.transform(new Date(1597901099999).getTime(), this.rangeDateTimeFormat)!;
+    // this.toTime = this.datePipe.transform(
+    //   new Date(this.fromTime).getTime() + this.initialTimeRangeLengthInMillis,
+    //   this.rangeDateTimeFormat
+    // )!;
   }
 
   private calculateTotalProfit(trades: Trade[]): number {

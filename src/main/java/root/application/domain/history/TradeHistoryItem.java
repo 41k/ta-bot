@@ -4,6 +4,7 @@ import lombok.Builder;
 import lombok.NonNull;
 import lombok.Value;
 import root.application.domain.trading.Interval;
+import root.application.domain.trading.Symbol;
 
 import java.util.List;
 
@@ -12,21 +13,23 @@ import java.util.List;
 public class TradeHistoryItem
 {
     @NonNull
+    String userId;
+    @NonNull
     String exchangeGateway;
     @NonNull
     String strategyExecutionId;
     @NonNull
     String strategyName;
     @NonNull
-    String symbol;
+    Symbol symbol;
     @NonNull
     Double amount;
+    @NonNull
+    Interval interval;
     @NonNull
     Double totalProfit;
     @NonNull
     Double absoluteProfit;
-    @NonNull
-    Interval interval;
     @NonNull
     Long entryTimestamp;
     @NonNull

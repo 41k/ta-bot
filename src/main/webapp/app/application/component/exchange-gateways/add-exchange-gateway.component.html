@@ -1,0 +1,25 @@
+<div class="modal-header">
+    <strong>Add exchange gateway</strong>
+</div>
+
+<div class="modal-body">
+    <div class="form-group row mb-1">
+        <label class="col-sm-12 col-form-label">Exchange gateway</label>
+        <div class="col-sm-12">
+            <select class="custom-select" [(ngModel)]="selectedExchangeGatewayId" (change)="updateAccountConfiguration()">
+                <option *ngFor="let exchangeGateway of exchangeGateways" [value]="exchangeGateway.id" [selected]="exchangeGateway.id == selectedExchangeGatewayId">
+                    {{exchangeGateway.name}}
+                </option>
+            </select>
+        </div>
+    </div>
+    <div *ngFor="let configurationEntry of accountConfiguration | keyvalue" class="form-group row mb-1">
+        <label class="col-sm-12 col-form-label">
+            {{exchangeGatewayAccountConfigurationPropertyDictionary[configurationEntry.key]}}
+        </label>
+        <div class="col-sm-12">
+            <input [ngModel]="accountConfiguration.get(configurationEntry.key)" (ngModelChange)="accountConfiguration.set(configurationEntry.key, $event)" type="text" class="form-control" placeholder="Paste value"/>
+        </div>
+    </div>
+    <button (click)="addExchangeGateway()" type="button" class="btn btn-success btn-block mt-4">Add</button>
+</div>

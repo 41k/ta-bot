@@ -3,9 +3,10 @@ import { HttpResponse } from '@angular/common/http';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { StrategyExecutionApiClient } from '../../api-client/strategy-execution.api-client';
 import { Strategy } from '../../model/strategy.model';
-import { ExchangeGateway } from '../../model/exchange-gateway.model';
 import { ExchangeGatewayApiClient } from '../../api-client/exchange-gateway.api-client';
 import { IntervalDictionary } from '../../model/interval-dictionary.model';
+import { SymbolDictionary } from '../../model/symbol-dictionary.model';
+import { ActivatedExchangeGateway } from '../../model/activated-exchange-gateway.model';
 
 @Component({
   selector: 'jhi-strategy-execution-run',
@@ -13,7 +14,7 @@ import { IntervalDictionary } from '../../model/interval-dictionary.model';
 })
 export class StrategyExecutionRunComponent {
   strategy!: Strategy;
-  exchangeGateways!: ExchangeGateway[];
+  exchangeGateways!: ActivatedExchangeGateway[];
   selectedExchangeGatewayId!: string;
   symbols!: string[];
   selectedSymbol!: string;
@@ -21,6 +22,7 @@ export class StrategyExecutionRunComponent {
   intervals!: string[];
   selectedInterval!: string;
 
+  symbolDictionary = SymbolDictionary;
   intervalDictionary = IntervalDictionary;
   done!: boolean;
 
@@ -41,15 +43,14 @@ export class StrategyExecutionRunComponent {
     this.selectedSymbol = '';
     this.intervals = [];
     this.selectedInterval = '';
-    this.exchangeGatewayApiClient.getExchangeGateways().subscribe((response: HttpResponse<ExchangeGateway[]>) => {
+    this.exchangeGatewayApiClient.getActivatedExchangeGateways().subscribe((response: HttpResponse<ActivatedExchangeGateway[]>) => {
       const exchangeGateways = response.body;
       if (exchangeGateways && exchangeGateways.length > 0) {
-        this.exchangeGateways = exchangeGateways;
+        this.exchangeGateways = exchangeGateways.sort((g1, g2) => (g1.name > g2.name ? 1 : -1));
         this.selectedExchangeGatewayId = exchangeGateways[0].id;
         this.loadSymbols();
       } else {
         this.exchangeGateways = [];
-        this.selectedExchangeGatewayId = '';
       }
     });
   }
@@ -60,8 +61,8 @@ export class StrategyExecutionRunComponent {
     this.exchangeGatewayApiClient.getSymbols(this.selectedExchangeGatewayId).subscribe((response: HttpResponse<string[]>) => {
       const symbols = response.body;
       if (symbols && symbols.length > 0) {
-        this.symbols = symbols;
-        this.selectedSymbol = symbols[0];
+        this.symbols = symbols.sort((s1, s2) => (s1 > s2 ? 1 : -1));
+        this.selectedSymbol = this.symbols[0];
         this.loadIntervals();
       } else {
         this.symbols = [];
@@ -75,7 +76,7 @@ export class StrategyExecutionRunComponent {
       const intervals = response.body;
       if (intervals && intervals.length > 0) {
         this.intervals = intervals;
-        this.selectedInterval = intervals[0];
+        this.selectedInterval = this.intervals[0];
       } else {
         this.intervals = [];
         this.selectedInterval = '';
@@ -87,8 +88,9 @@ export class StrategyExecutionRunComponent {
     if (!this.selectedExchangeGatewayId || !this.selectedSymbol || !this.amount || !this.selectedInterval) {
       return;
     }
+    const exchangeGateway = this.exchangeGateways.filter(gateway => gateway.id === this.selectedExchangeGatewayId)[0];
     this.strategyExecutionApiClient
-      .runStrategyExecution(this.selectedExchangeGatewayId, {
+      .runStrategyExecution(exchangeGateway.id, exchangeGateway.accountId, {
         strategyId: this.strategy.id,
         symbol: this.selectedSymbol,
         amount: this.amount,

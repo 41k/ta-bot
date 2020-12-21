@@ -1,4 +1,4 @@
-import { Component, ViewChild } from '@angular/core';
+import { Component, ViewChild, OnDestroy } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { HttpResponse } from '@angular/common/http';
 import { HistoryApiClient } from '../../api-client/history.api-client';
@@ -9,7 +9,7 @@ import { ChartComponent } from 'ng-apexcharts';
   selector: 'jhi-dashboard',
   templateUrl: './dashboard.component.html',
 })
-export class DashboardComponent {
+export class DashboardComponent implements OnDestroy {
   private initialTimeRangeLengthInHours = 12;
   private oneMinuteInMillis = 60000;
   private oneHourInMillis = 60 * this.oneMinuteInMillis;
@@ -44,14 +44,18 @@ export class DashboardComponent {
     this.rerunUpdateViewDataTask();
   }
 
+  ngOnDestroy(): void {
+    clearInterval(this.updateViewDataTask);
+  }
+
   private initFilters(): void {
-    //this.fromTime = this.datePipe.transform(Date.now() - this.initialTimeRangeLengthInMillis, this.rangeDateTimeFormat)!;
-    //this.toTime = this.datePipe.transform(Date.now(), this.rangeDateTimeFormat)!;
-    this.fromTime = this.datePipe.transform(new Date(1597901099999).getTime(), this.rangeDateTimeFormat)!;
-    this.toTime = this.datePipe.transform(
-      new Date(this.fromTime).getTime() + this.initialTimeRangeLengthInMillis,
-      this.rangeDateTimeFormat
-    )!;
+    this.fromTime = this.datePipe.transform(Date.now() - this.initialTimeRangeLengthInMillis, this.rangeDateTimeFormat)!;
+    this.toTime = this.datePipe.transform(Date.now(), this.rangeDateTimeFormat)!;
+    // this.fromTime = this.datePipe.transform(new Date(1597901099999).getTime(), this.rangeDateTimeFormat)!;
+    // this.toTime = this.datePipe.transform(
+    //   new Date(this.fromTime).getTime() + this.initialTimeRangeLengthInMillis,
+    //   this.rangeDateTimeFormat
+    // )!;
   }
 
   private loadExchangeGateways(): void {
@@ -63,8 +67,8 @@ export class DashboardComponent {
       .subscribe((response: HttpResponse<string[]>) => {
         const exchangeGateways = response.body;
         if (exchangeGateways && exchangeGateways.length > 0) {
-          this.exchangeGateways = exchangeGateways;
-          this.selectedExchangeGateway = exchangeGateways[0];
+          this.exchangeGateways = exchangeGateways.sort((g1, g2) => (g1 > g2 ? 1 : -1));
+          this.selectedExchangeGateway = this.exchangeGateways[0];
           this.updateViewData();
         } else {
           this.exchangeGateways = [];

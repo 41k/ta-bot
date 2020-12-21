@@ -5,6 +5,6 @@ import lombok.Value;
 @Value
 public class TradingOperationResult
 {
-    double amount;
-    double price;
+    Double amount;
+    Double price;
 }

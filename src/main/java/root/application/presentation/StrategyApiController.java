@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RestController;
 import root.application.application.model.StrategyInfo;
 import root.application.application.service.StrategyService;
 
-import java.util.Set;
+import java.util.Collection;
 
 @RestController
 @RequestMapping("/api/strategies")
@@ -17,7 +17,7 @@ public class StrategyApiController
     private final StrategyService strategyService;
 
     @GetMapping
-    public Set<StrategyInfo> getStrategies()
+    public Collection<StrategyInfo> getStrategies()
     {
         return strategyService.getStrategies();
     }

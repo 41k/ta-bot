@@ -1,17 +1,19 @@
-package root.application.domain.strategy.macd;
+package root.application.domain.strategy.qa;
 
-import org.ta4j.core.BaseStrategy;
+import org.ta4j.core.BarSeries;
 import org.ta4j.core.Rule;
-import org.ta4j.core.Strategy;
 import org.ta4j.core.indicators.helpers.ClosePriceIndicator;
+import org.ta4j.core.num.Num;
 import org.ta4j.core.trading.rules.CrossedDownIndicatorRule;
 import org.ta4j.core.trading.rules.CrossedUpIndicatorRule;
 import org.ta4j.core.trading.rules.UnderIndicatorRule;
+import root.application.domain.indicator.Indicator;
 import root.application.domain.indicator.macd.MACDDifferenceIndicator;
 import root.application.domain.indicator.macd.MACDIndicator;
 import root.application.domain.indicator.macd.MACDLevelIndicator;
 import root.application.domain.indicator.macd.MACDSignalLineIndicator;
 import root.application.domain.strategy.AbstractStrategyFactory;
+import root.application.domain.strategy.Strategy;
 
 import java.util.List;
 
@@ -28,28 +30,23 @@ public class MacdStrategy1Factory extends AbstractStrategyFactory
     private static final String STRATEGY_ID = "8795316a-c6ef-4cab-bc84-6e508701f95f";
     private static final String STRATEGY_NAME = "MACD-1";
 
-    private final ClosePriceIndicator closePriceIndicator;
-    private final MACDIndicator macdIndicator;
-    private final MACDSignalLineIndicator macdSignalLineIndicator;
-    private final MACDDifferenceIndicator macdDifferenceIndicator;
-    private final MACDLevelIndicator macdLevel0Indicator;
-
     public MacdStrategy1Factory()
     {
         super(STRATEGY_ID, STRATEGY_NAME);
-        this.closePriceIndicator = new ClosePriceIndicator(series);
-        this.macdIndicator = new MACDIndicator(closePriceIndicator, 12, 26);
-        this.macdSignalLineIndicator = new MACDSignalLineIndicator(macdIndicator, 9);
-        this.macdDifferenceIndicator = new MACDDifferenceIndicator(macdIndicator, macdSignalLineIndicator);
-        this.macdLevel0Indicator = new MACDLevelIndicator(series, series.numOf(0));
-        numIndicators.addAll(List.of(
-                macdIndicator, macdSignalLineIndicator, macdDifferenceIndicator, macdLevel0Indicator
-        ));
     }
 
     @Override
-    public Strategy create()
+    public Strategy create(BarSeries series)
     {
+        var closePriceIndicator = new ClosePriceIndicator(series);
+        var macdIndicator = new MACDIndicator(closePriceIndicator, 12, 26);
+        var macdSignalLineIndicator = new MACDSignalLineIndicator(macdIndicator, 9);
+        var macdDifferenceIndicator = new MACDDifferenceIndicator(macdIndicator, macdSignalLineIndicator);
+        var macdLevel0Indicator = new MACDLevelIndicator(series, series.numOf(0));
+        var numIndicators = List.<Indicator<Num>>of(
+            macdIndicator, macdSignalLineIndicator, macdDifferenceIndicator, macdLevel0Indicator
+        );
+
         Rule entryRule = // Buy rule:
                 // (macdDiff < level(0))
                 new UnderIndicatorRule(macdDifferenceIndicator, macdLevel0Indicator)
@@ -61,7 +58,7 @@ public class MacdStrategy1Factory extends AbstractStrategyFactory
                 // (macd crosses up level(0))
                 new CrossedUpIndicatorRule(macdIndicator, macdLevel0Indicator);
 
-        return new BaseStrategy(strategyId, entryRule, exitRule);
+        return new Strategy(STRATEGY_ID, STRATEGY_NAME, numIndicators, entryRule, exitRule);
     }
 }
 

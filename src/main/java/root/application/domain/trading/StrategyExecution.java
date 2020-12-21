@@ -2,13 +2,16 @@ package root.application.domain.trading;
 
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.ta4j.core.*;
+import org.ta4j.core.cost.LinearTransactionCostModel;
+import org.ta4j.core.cost.ZeroCostModel;
 import root.application.domain.history.TradeContext;
 import root.application.domain.history.TradeHistoryItemBuilder;
 import root.application.domain.history.TradeHistoryItemRepository;
-import root.application.domain.strategy.StrategyFactory;
+import root.application.domain.strategy.Strategy;
 
 import java.util.UUID;
 
@@ -19,15 +22,15 @@ import static root.application.domain.trading.StrategyExecutionStatus.*;
 @Slf4j
 public class StrategyExecution
 {
+    private static final int BAR_SERIES_SIZE_THRESHOLD = 1000;
     private static final String STRATEGY_EXECUTION_DESCRIPTION_FOR_LOG_MESSAGE =
         "Execution of strategy [{}] for exchange gateway [{}] with {}";
 
     @Getter
     private final String id;
     private final long startTime;
-    private final StrategyFactory strategyFactory;
-    private final Strategy strategy;
     private final BarSeries series;
+    private final Strategy strategy;
     private final ExchangeGateway exchangeGateway;
     private final TradingRecord tradingRecord;
     private final TradeHistoryItemBuilder tradeHistoryItemBuilder;
@@ -35,18 +38,15 @@ public class StrategyExecution
     private final StrategyExecutionContext strategyExecutionContext;
     private volatile StrategyExecutionStatus status;
 
-    public StrategyExecution(StrategyFactory strategyFactory,
-                             ExchangeGateway exchangeGateway,
-                             StrategyExecutionContext strategyExecutionContext,
+    public StrategyExecution(StrategyExecutionContext strategyExecutionContext,
                              TradeHistoryItemRepository tradeHistoryItemRepository)
     {
         this.id = UUID.randomUUID().toString();
         this.startTime = System.currentTimeMillis();
-        this.strategyFactory = strategyFactory;
-        this.strategy = strategyFactory.create();
-        this.series = strategyFactory.getBarSeries();
-        this.exchangeGateway = exchangeGateway;
-        this.tradingRecord = new BaseTradingRecord();
+        this.series = initBarSeries();
+        this.strategy = strategyExecutionContext.getStrategyFactory().create(series);
+        this.exchangeGateway = strategyExecutionContext.getExchangeGateway();
+        this.tradingRecord = initTradingRecord(strategyExecutionContext);
         this.tradeHistoryItemBuilder = new TradeHistoryItemBuilder();
         this.tradeHistoryItemRepository = tradeHistoryItemRepository;
         this.strategyExecutionContext = strategyExecutionContext;
@@ -57,13 +57,13 @@ public class StrategyExecution
     {
         if (status.equals(WAITING_FOR_ENTRY))
         {
-            this.status = STOPPED;
-            logExecutionStoppage();
+            stopExecution();
         }
         else if (status.equals(WAITING_FOR_EXIT))
         {
             this.status = STOPPING;
-            logExecutionStopping();
+            log.info(STRATEGY_EXECUTION_DESCRIPTION_FOR_LOG_MESSAGE + " is stopping...",
+                strategy.getName(), exchangeGateway.getName(), strategyExecutionContext);
         }
     }
 
@@ -80,7 +80,7 @@ public class StrategyExecution
             .id(id)
             .startTime(startTime)
             .status(status)
-            .strategyName(strategyFactory.getStrategyName())
+            .strategyName(strategy.getName())
             .symbol(strategyExecutionContext.getSymbol())
             .amount(strategyExecutionContext.getAmount())
             .interval(strategyExecutionContext.getInterval())
@@ -89,14 +89,36 @@ public class StrategyExecution
 
     private void run()
     {
+        subscribeToBarStream();
         this.status = WAITING_FOR_ENTRY;
-        var interval = strategyExecutionContext.getInterval();
-        exchangeGateway.subscribeToBarStream(interval, this::processBar);
         log.info(STRATEGY_EXECUTION_DESCRIPTION_FOR_LOG_MESSAGE + " has been run successfully.",
-            strategyFactory.getStrategyName(), exchangeGateway.getName(), strategyExecutionContext);
+            strategy.getName(), exchangeGateway.getName(), strategyExecutionContext);
     }
 
-    private synchronized void processBar(Bar bar)
+    private void subscribeToBarStream()
+    {
+        var subscriptionContext = buildBarStreamSubscriptionContext();
+        exchangeGateway.subscribeToBarStream(subscriptionContext);
+    }
+
+    private void unsubscribeFromBarStream()
+    {
+        var subscriptionContext = buildBarStreamSubscriptionContext();
+        exchangeGateway.unsubscribeFromBarStream(subscriptionContext);
+    }
+
+    private BarStreamSubscriptionContext buildBarStreamSubscriptionContext()
+    {
+        return BarStreamSubscriptionContext.builder()
+            .symbol(strategyExecutionContext.getSymbol())
+            .interval(strategyExecutionContext.getInterval())
+            .barStreamSubscriberId(id)
+            .barStreamSubscriber(this::acceptBar)
+            .exchangeGatewayAccountConfiguration(strategyExecutionContext.getExchangeGatewayAccountConfiguration())
+            .build();
+    }
+
+    private synchronized void acceptBar(Bar bar)
     {
         series.addBar(bar);
         var currentBarIndex = series.getEndIndex();
@@ -109,7 +131,6 @@ public class StrategyExecution
         if (shouldSell(currentBarIndex))
         {
             sell(currentBarIndex, tradingOperationContext);
-            recordLastTradeToHistory();
         }
     }
 
@@ -135,7 +156,8 @@ public class StrategyExecution
             var price = series.numOf(tradingOperationResult.getPrice());
             var amount = series.numOf(tradingOperationResult.getAmount());
             tradingRecord.enter(currentBarIndex, price, amount);
-            changeStatus();
+            updateState();
+            logTradingOperationResult(BUY, tradingOperationResult);
         }
         catch (Exception exception)
         {
@@ -151,7 +173,9 @@ public class StrategyExecution
             var price = series.numOf(tradingOperationResult.getPrice());
             var amount = series.numOf(tradingOperationResult.getAmount());
             tradingRecord.exit(currentBarIndex, price, amount);
-            changeStatus();
+            updateState();
+            recordLastTradeToHistory();
+            logTradingOperationResult(SELL, tradingOperationResult);
         }
         catch (Exception exception)
         {
@@ -159,7 +183,7 @@ public class StrategyExecution
         }
     }
 
-    private void changeStatus()
+    private void updateState()
     {
         if (status.equals(WAITING_FOR_ENTRY))
         {
@@ -171,61 +195,90 @@ public class StrategyExecution
         }
         else if (status.equals(STOPPING))
         {
-            status = STOPPED;
-            logExecutionStoppage();
+            stopExecution();
         }
+    }
+
+    private void stopExecution()
+    {
+        unsubscribeFromBarStream();
+        status = STOPPED;
+        log.info(STRATEGY_EXECUTION_DESCRIPTION_FOR_LOG_MESSAGE + " has been stopped successfully.",
+            strategy.getName(), exchangeGateway.getName(), strategyExecutionContext);
     }
 
     private void recordLastTradeToHistory()
     {
-        var lastTrade = tradingRecord.getLastTrade();
-        var tradeContext = TradeContext.builder()
-            .exchangeGateway(exchangeGateway)
-            .strategyExecutionId(id)
-            .strategyExecutionContext(strategyExecutionContext)
-            .strategyFactory(strategyFactory)
-            .build();
-        var tradeHistoryItem = tradeHistoryItemBuilder.build(lastTrade, tradeContext);
-        tradeHistoryItemRepository.save(tradeHistoryItem);
+        try
+        {
+            var lastTrade = tradingRecord.getLastTrade();
+            var tradeContext = TradeContext.builder()
+                .strategyExecutionId(id)
+                .strategyExecutionContext(strategyExecutionContext)
+                .series(series)
+                .strategy(strategy)
+                .build();
+            var tradeHistoryItem = tradeHistoryItemBuilder.build(lastTrade, tradeContext);
+            tradeHistoryItemRepository.save(tradeHistoryItem);
+        }
+        catch (Exception e)
+        {
+            log.error("Error has occurred during recording of trade to history.", e);
+        }
     }
 
-    private void logExecutionStopping()
+    private void logTradingOperationResult(Order.OrderType operationType, TradingOperationResult tradingOperationResult)
     {
-        log.info(STRATEGY_EXECUTION_DESCRIPTION_FOR_LOG_MESSAGE + " is stopping...",
-            strategyFactory.getStrategyName(), exchangeGateway.getName(), strategyExecutionContext);
-    }
-
-    private void logExecutionStoppage()
-    {
-        log.info(STRATEGY_EXECUTION_DESCRIPTION_FOR_LOG_MESSAGE + " has been stopped successfully.",
-            strategyFactory.getStrategyName(), exchangeGateway.getName(), strategyExecutionContext);
+        log.info("{} operation for " + STRATEGY_EXECUTION_DESCRIPTION_FOR_LOG_MESSAGE + " has been done successfully with {}.",
+            operationType, strategy.getName(), exchangeGateway.getName(), strategyExecutionContext, tradingOperationResult);
     }
 
     private void logTradingOperationFailure(Order.OrderType operationType, Exception exception)
     {
         log.error("{} operation failed for " + STRATEGY_EXECUTION_DESCRIPTION_FOR_LOG_MESSAGE,
-            operationType, strategyFactory.getStrategyName(), exchangeGateway.getName(), strategyExecutionContext);
+            operationType, strategy.getName(), exchangeGateway.getName(), strategyExecutionContext, exception);
     }
 
     private TradingOperationContext buildTradingOperationContext(Bar bar)
     {
         return TradingOperationContext.builder()
+            .exchangeGatewayAccountConfiguration(strategyExecutionContext.getExchangeGatewayAccountConfiguration())
             .symbol(strategyExecutionContext.getSymbol())
             .amount(strategyExecutionContext.getAmount())
             .price(bar.getClosePrice().doubleValue())
             .build();
     }
 
+    private BarSeries initBarSeries()
+    {
+        var series = new BaseBarSeries();
+        series.setMaximumBarCount(BAR_SERIES_SIZE_THRESHOLD);
+        return series;
+    }
+
+    private TradingRecord initTradingRecord(StrategyExecutionContext strategyExecutionContext)
+    {
+        var transactionFee = strategyExecutionContext.getExchangeGateway().getTransactionFee();
+        return new BaseTradingRecord(BUY, new LinearTransactionCostModel(transactionFee), new ZeroCostModel());
+    }
+
     @Value
     @Builder
     public static class State
     {
+        @NonNull
         String id;
-        long startTime;
+        @NonNull
+        Long startTime;
+        @NonNull
         StrategyExecutionStatus status;
+        @NonNull
         String strategyName;
-        String symbol;
-        double amount;
+        @NonNull
+        Symbol symbol;
+        @NonNull
+        Double amount;
+        @NonNull
         Interval interval;
     }
 }

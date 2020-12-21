@@ -140,3 +140,23 @@ jhipster:
 # ===================================================================
 
 # application:
+exchange-gateways:
+  currency-com:
+    id: 58d0dcdc-0103-4eff-bf4e-3a6e678e6fa3
+    name: currency.com
+    transactionFee: 0.002
+    symbolToRepresentationMap:
+      BTC_USD: BTC/USD
+      ETH_USD: ETH/USD
+      XRP_USD: XRP/USD
+      LTC_USD: LTC/USD
+    intervalToRepresentationMap:
+      ONE_MINUTE: 1m
+      FIVE_MINUTES: 5m
+      FIFTEEN_MINUTES: 15m
+      THIRTY_MINUTES: 30m
+      ONE_HOUR: 1h
+      FOUR_HOURS: 4h
+      ONE_DAY: 1d
+
+logs.dir: logs
