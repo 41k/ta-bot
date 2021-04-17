@@ -10,6 +10,7 @@ import root.application.domain.history.Tick;
 import java.util.List;
 import java.util.Map;
 
+import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
 
 @Data
@@ -25,13 +26,18 @@ public class TickDbData
     private Double volume;
     private Long timestamp;
     private Order.OrderType signal;
-    private List<LevelDbData> levels;
+    private List<MainChartLevelDbData> mainChartLevels;
     private Map<String, Double> mainChartNumIndicators;
     private Map<String, Double> additionalChartNumIndicators;
 
     public Tick toDomainObject()
     {
-        var levelDomainObjectList = levels.stream().map(LevelDbData::toDomainObject).collect(toList());
+        // Wrapping with Optional.ofNullable() is necessary for backward compatibility,
+        // since "levels" property was renamed to "mainChartLevels"
+        var mainChartLevelDomainObjectList = ofNullable(mainChartLevels).orElseGet(List::of)
+            .stream()
+            .map(MainChartLevelDbData::toDomainObject)
+            .collect(toList());
         return Tick.builder()
             .open(open)
             .high(high)
@@ -40,7 +46,7 @@ public class TickDbData
             .volume(volume)
             .timestamp(timestamp)
             .signal(signal)
-            .levels(levelDomainObjectList)
+            .mainChartLevels(mainChartLevelDomainObjectList)
             .mainChartNumIndicators(mainChartNumIndicators)
             .additionalChartNumIndicators(additionalChartNumIndicators)
             .build();
@@ -48,7 +54,10 @@ public class TickDbData
 
     public static TickDbData fromDomainObject(Tick tick)
     {
-        var levelDbDataList = tick.getLevels().stream().map(LevelDbData::fromDomainObject).collect(toList());
+        var mainChartLevelDbDataList = tick.getMainChartLevels()
+            .stream()
+            .map(MainChartLevelDbData::fromDomainObject)
+            .collect(toList());
         return TickDbData.builder()
             .open(tick.getOpen())
             .high(tick.getHigh())
@@ -57,7 +66,7 @@ public class TickDbData
             .volume(tick.getVolume())
             .timestamp(tick.getTimestamp())
             .signal(tick.getSignal())
-            .levels(levelDbDataList)
+            .mainChartLevels(mainChartLevelDbDataList)
             .mainChartNumIndicators(tick.getMainChartNumIndicators())
             .additionalChartNumIndicators(tick.getAdditionalChartNumIndicators())
             .build();

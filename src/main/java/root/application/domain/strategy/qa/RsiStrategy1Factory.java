@@ -3,16 +3,15 @@ package root.application.domain.strategy.qa;
 import org.ta4j.core.BarSeries;
 import org.ta4j.core.Rule;
 import org.ta4j.core.indicators.helpers.ClosePriceIndicator;
-import org.ta4j.core.num.Num;
 import org.ta4j.core.trading.rules.CrossedDownIndicatorRule;
 import org.ta4j.core.trading.rules.CrossedUpIndicatorRule;
-import root.application.domain.indicator.Indicator;
-import root.application.domain.indicator.rsi.RSIIndicator;
-import root.application.domain.indicator.rsi.RSILevelIndicator;
 import root.application.domain.strategy.AbstractStrategyFactory;
 import root.application.domain.strategy.Strategy;
 
 import java.util.List;
+
+import static root.application.domain.indicator.NumberIndicators.rsi;
+import static root.application.domain.indicator.NumberIndicators.rsiLevel;
 
 //    Buy rule:
 //        (rsi(12) crosses down rsiLevel(30))
@@ -33,22 +32,22 @@ public class RsiStrategy1Factory extends AbstractStrategyFactory
     @Override
     public Strategy create(BarSeries series)
     {
-        var closePriceIndicator = new ClosePriceIndicator(series);
-        var rsiIndicator = new RSIIndicator(closePriceIndicator, 12);
-        var rsiLevel30Indicator = new RSILevelIndicator(series, series.numOf(30));
-        var numIndicators = List.<Indicator<Num>>of(
-            rsiIndicator, rsiLevel30Indicator
+        var closePrice = new ClosePriceIndicator(series);
+        var rsi = rsi(closePrice, 12);
+        var rsiLevel30 = rsiLevel(30, series);
+        var numberIndicators = List.of(
+            rsi, rsiLevel30
         );
 
         Rule entryRule = // Buy rule:
                 // (rsi(12) crosses down rsiLevel(30))
-                new CrossedDownIndicatorRule(rsiIndicator, rsiLevel30Indicator);
+                new CrossedDownIndicatorRule(rsi, rsiLevel30);
 
         Rule exitRule = // Sell rule:
                 // (rsi(12) crosses up rsiLevel(30))
-                new CrossedUpIndicatorRule(rsiIndicator, rsiLevel30Indicator);
+                new CrossedUpIndicatorRule(rsi, rsiLevel30);
 
-        return new Strategy(STRATEGY_ID, STRATEGY_NAME, numIndicators, entryRule, exitRule);
+        return new Strategy(STRATEGY_ID, STRATEGY_NAME, numberIndicators, entryRule, exitRule);
     }
 }
 

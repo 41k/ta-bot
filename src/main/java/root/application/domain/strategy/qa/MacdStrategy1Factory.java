@@ -3,19 +3,15 @@ package root.application.domain.strategy.qa;
 import org.ta4j.core.BarSeries;
 import org.ta4j.core.Rule;
 import org.ta4j.core.indicators.helpers.ClosePriceIndicator;
-import org.ta4j.core.num.Num;
 import org.ta4j.core.trading.rules.CrossedDownIndicatorRule;
 import org.ta4j.core.trading.rules.CrossedUpIndicatorRule;
 import org.ta4j.core.trading.rules.UnderIndicatorRule;
-import root.application.domain.indicator.Indicator;
-import root.application.domain.indicator.macd.MACDDifferenceIndicator;
-import root.application.domain.indicator.macd.MACDIndicator;
-import root.application.domain.indicator.macd.MACDLevelIndicator;
-import root.application.domain.indicator.macd.MACDSignalLineIndicator;
 import root.application.domain.strategy.AbstractStrategyFactory;
 import root.application.domain.strategy.Strategy;
 
 import java.util.List;
+
+import static root.application.domain.indicator.NumberIndicators.*;
 
 //    Buy rule:
 //        (macdDiff < level(0))
@@ -38,27 +34,27 @@ public class MacdStrategy1Factory extends AbstractStrategyFactory
     @Override
     public Strategy create(BarSeries series)
     {
-        var closePriceIndicator = new ClosePriceIndicator(series);
-        var macdIndicator = new MACDIndicator(closePriceIndicator, 12, 26);
-        var macdSignalLineIndicator = new MACDSignalLineIndicator(macdIndicator, 9);
-        var macdDifferenceIndicator = new MACDDifferenceIndicator(macdIndicator, macdSignalLineIndicator);
-        var macdLevel0Indicator = new MACDLevelIndicator(series, series.numOf(0));
-        var numIndicators = List.<Indicator<Num>>of(
-            macdIndicator, macdSignalLineIndicator, macdDifferenceIndicator, macdLevel0Indicator
+        var closePrice = new ClosePriceIndicator(series);
+        var macd = macd(closePrice, 12, 26);
+        var macdSignalLine = macdSignal(macd, 9);
+        var macdDifference = macdDifference(macd, macdSignalLine);
+        var macdLevel0 = macdLevel(0, series);
+        var numberIndicators = List.of(
+            macd, macdSignalLine, macdDifference, macdLevel0
         );
 
         Rule entryRule = // Buy rule:
                 // (macdDiff < level(0))
-                new UnderIndicatorRule(macdDifferenceIndicator, macdLevel0Indicator)
+                new UnderIndicatorRule(macdDifference, macdLevel0)
                 // AND
                 // (macdSignalLine crosses down macdDiff)
-                .and(new CrossedDownIndicatorRule(macdSignalLineIndicator, macdDifferenceIndicator));
+                .and(new CrossedDownIndicatorRule(macdSignalLine, macdDifference));
 
         Rule exitRule = // Sell rule:
                 // (macd crosses up level(0))
-                new CrossedUpIndicatorRule(macdIndicator, macdLevel0Indicator);
+                new CrossedUpIndicatorRule(macd, macdLevel0);
 
-        return new Strategy(STRATEGY_ID, STRATEGY_NAME, numIndicators, entryRule, exitRule);
+        return new Strategy(STRATEGY_ID, STRATEGY_NAME, numberIndicators, entryRule, exitRule);
     }
 }
 

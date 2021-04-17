@@ -2,17 +2,14 @@ package root.application.domain.strategy.prod;
 
 import org.ta4j.core.BarSeries;
 import org.ta4j.core.indicators.helpers.ClosePriceIndicator;
-import org.ta4j.core.num.Num;
 import org.ta4j.core.trading.rules.*;
-import root.application.domain.indicator.Indicator;
-import root.application.domain.indicator.sma.SMAIndicator;
 import root.application.domain.indicator.trend.UpTrendIndicator;
-import root.application.domain.indicator.wri.WRIndicator;
-import root.application.domain.indicator.wri.WRLevelIndicator;
 import root.application.domain.strategy.AbstractStrategyFactory;
 import root.application.domain.strategy.Strategy;
 
 import java.util.List;
+
+import static root.application.domain.indicator.NumberIndicators.*;
 
 public class ETHUSD_5m_UpTrend_Strategy1Factory extends AbstractStrategyFactory
 {
@@ -28,13 +25,13 @@ public class ETHUSD_5m_UpTrend_Strategy1Factory extends AbstractStrategyFactory
     public Strategy create(BarSeries series)
     {
         var closePrice = new ClosePriceIndicator(series);
-        var sma10 = new SMAIndicator(closePrice, 10);
-        var sma100 = new SMAIndicator(closePrice, 100);
-        var sma200 = new SMAIndicator(closePrice, 200);
-        var wr = new WRIndicator(series, 10);
-        var wrLevelMinus10 = new WRLevelIndicator(series, series.numOf(-10));
-        var wrLevelMinus90 = new WRLevelIndicator(series, series.numOf(-90));
-        var numIndicators = List.<Indicator<Num>>of(sma10, sma100, sma200, wr, wrLevelMinus10, wrLevelMinus90);
+        var sma10 = sma(closePrice, 10);
+        var sma100 = sma(closePrice, 100);
+        var sma200 = sma(closePrice, 200);
+        var wr = williamsR(10, series);
+        var wrLevelMinus10 = williamsRLevel(-10, series);
+        var wrLevelMinus90 = williamsRLevel(-90, series);
+        var numberIndicators = List.of(sma10, sma100, sma200, wr, wrLevelMinus10, wrLevelMinus90);
 
         var entryRule = new OverIndicatorRule(closePrice, sma200)
             .and(new UnderIndicatorRule(closePrice, sma10))
@@ -46,6 +43,6 @@ public class ETHUSD_5m_UpTrend_Strategy1Factory extends AbstractStrategyFactory
 
         var exitRule = new CrossedUpIndicatorRule(wr, wrLevelMinus10);
 
-        return new Strategy(STRATEGY_ID, STRATEGY_NAME, numIndicators, entryRule, exitRule);
+        return new Strategy(STRATEGY_ID, STRATEGY_NAME, numberIndicators, entryRule, exitRule);
     }
 }

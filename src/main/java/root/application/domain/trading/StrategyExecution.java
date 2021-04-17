@@ -137,14 +137,14 @@ public class StrategyExecution
     private boolean shouldBuy(int currentBarIndex)
     {
         return status.equals(WAITING_FOR_ENTRY) &&
-            strategy.shouldEnter(currentBarIndex) &&
+            strategy.shouldEnter(currentBarIndex, tradingRecord) &&
             tradingRecord.getCurrentTrade().isNew();
     }
 
     private boolean shouldSell(int currentBarIndex)
     {
         return (status.equals(WAITING_FOR_EXIT) || status.equals(STOPPING)) &&
-            strategy.shouldExit(currentBarIndex) &&
+            strategy.shouldExit(currentBarIndex, tradingRecord) &&
             tradingRecord.getCurrentTrade().isOpened();
     }
 

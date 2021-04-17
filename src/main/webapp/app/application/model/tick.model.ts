@@ -1,4 +1,4 @@
-import { Level } from './level.model';
+import { MainChartLevel } from './main-chart-level.model';
 
 export class Tick {
   constructor(
@@ -9,7 +9,7 @@ export class Tick {
     public volume: number,
     public timestamp: number,
     public signal: string,
-    public levels: Array<Level>,
+    public mainChartLevels: Array<MainChartLevel>,
     public mainChartNumIndicators: any,
     public additionalChartNumIndicators: any
   ) {}

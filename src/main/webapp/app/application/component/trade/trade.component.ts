@@ -4,7 +4,7 @@ import { ChartComponent } from 'ng-apexcharts';
 import { DatePipe } from '@angular/common';
 import { Trade } from '../../model/trade.model';
 import { Tick } from '../../model/tick.model';
-import { Level } from '../../model/level.model';
+import { MainChartLevel } from '../../model/main-chart-level.model';
 import { IntervalDictionary } from '../../model/interval-dictionary.model';
 import { SymbolDictionary } from '../../model/symbol-dictionary.model';
 
@@ -165,7 +165,7 @@ export class TradeComponent {
 
   private addLevels(chartOptions: any, ticks: Tick[]): void {
     ticks.forEach(tick => {
-      const levels = tick.levels;
+      const levels = tick.mainChartLevels;
       if (levels) {
         levels.forEach(level => {
           chartOptions.annotations.yaxis.push(this.createLevel(level));
@@ -174,7 +174,7 @@ export class TradeComponent {
     });
   }
 
-  private createLevel(level: Level): any {
+  private createLevel(level: MainChartLevel): any {
     const colorHex = '#1ab394';
     return {
       y: level.value,
@@ -187,6 +187,8 @@ export class TradeComponent {
           background: colorHex,
         },
         text: level.name,
+        position: 'left',
+        textAnchor: 'start',
       },
     };
   }

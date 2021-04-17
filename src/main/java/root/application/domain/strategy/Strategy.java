@@ -3,9 +3,8 @@ package root.application.domain.strategy;
 import lombok.Getter;
 import org.ta4j.core.BaseStrategy;
 import org.ta4j.core.Rule;
-import org.ta4j.core.num.Num;
-import root.application.domain.indicator.Indicator;
-import root.application.domain.level.StopLossLevelProvider;
+import root.application.domain.indicator.NumberIndicator;
+import root.application.domain.level.MainChartLevelProvider;
 
 import java.util.List;
 import java.util.Optional;
@@ -21,38 +20,38 @@ public class Strategy extends BaseStrategy
     @Getter
     private final String name;
     @Getter
-    private final List<Indicator<Num>> numIndicators;
-    private final StopLossLevelProvider stopLossLevelProvider;
+    private final List<NumberIndicator> numberIndicators;
+    private final List<MainChartLevelProvider> mainChartLevelProviders;
     private final Integer unstablePeriodLength;
 
     public Strategy(String id,
                     String name,
-                    List<Indicator<Num>> numIndicators,
+                    List<NumberIndicator> numberIndicators,
                     Rule entryRule,
                     Rule exitRule)
     {
-        this(id, name, numIndicators, entryRule, exitRule, null, null);
+        this(id, name, numberIndicators, entryRule, exitRule, List.of(), null);
     }
 
     public Strategy(String id,
                     String name,
-                    List<Indicator<Num>> numIndicators,
+                    List<NumberIndicator> numberIndicators,
                     Rule entryRule,
                     Rule exitRule,
-                    StopLossLevelProvider stopLossLevelProvider,
+                    List<MainChartLevelProvider> mainChartLevelProviders,
                     Integer unstablePeriodLength)
     {
         super(name, entryRule, exitRule, ofNullable(unstablePeriodLength).orElse(DEFAULT_UNSTABLE_PERIOD_LENGTH));
         this.id = id;
         this.name = name;
-        this.numIndicators = numIndicators;
-        this.stopLossLevelProvider = stopLossLevelProvider;
+        this.numberIndicators = numberIndicators;
+        this.mainChartLevelProviders = mainChartLevelProviders;
         this.unstablePeriodLength = unstablePeriodLength;
     }
 
-    public Optional<StopLossLevelProvider> getStopLossLevelProvider()
+    public List<MainChartLevelProvider> getMainChartLevelProviders()
     {
-        return ofNullable(stopLossLevelProvider);
+        return mainChartLevelProviders;
     }
 
     public Optional<Integer> getUnstablePeriodLength()

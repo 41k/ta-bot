@@ -10,10 +10,7 @@ import root.application.application.repository.ExchangeGatewayAccountRepository;
 import root.application.application.service.*;
 import root.application.domain.history.TradeHistoryItemRepository;
 import root.application.domain.strategy.StrategyFactory;
-import root.application.domain.strategy.prod.ETHUSD_5m_BB_Strategy1Factory;
-import root.application.domain.strategy.prod.ETHUSD_5m_BB_Strategy2Factory;
-import root.application.domain.strategy.prod.ETHUSD_5m_DownTrend_Strategy1Factory;
-import root.application.domain.strategy.prod.ETHUSD_5m_UpTrend_Strategy1Factory;
+import root.application.domain.strategy.prod.*;
 import root.application.domain.strategy.qa.MacdStrategy1Factory;
 import root.application.domain.strategy.qa.RsiStrategy1Factory;
 import root.application.domain.strategy.qa.SmaStrategy5Factory;
@@ -42,7 +39,8 @@ public class ApplicationConfiguration
             new ETHUSD_5m_DownTrend_Strategy1Factory(),
             new ETHUSD_5m_UpTrend_Strategy1Factory(),
             new ETHUSD_5m_BB_Strategy1Factory(),
-            new ETHUSD_5m_BB_Strategy2Factory()
+            new ETHUSD_5m_BB_Strategy2Factory(),
+            new ETHUSD_5m_Pullback_Strategy1Factory()
         );
         return strategyFactories.stream().collect(toMap(StrategyFactory::getStrategyId, identity()));
     }

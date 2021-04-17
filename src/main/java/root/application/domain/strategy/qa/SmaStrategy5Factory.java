@@ -3,15 +3,14 @@ package root.application.domain.strategy.qa;
 import org.ta4j.core.BarSeries;
 import org.ta4j.core.Rule;
 import org.ta4j.core.indicators.helpers.ClosePriceIndicator;
-import org.ta4j.core.num.Num;
 import org.ta4j.core.trading.rules.CrossedDownIndicatorRule;
 import org.ta4j.core.trading.rules.CrossedUpIndicatorRule;
-import root.application.domain.indicator.Indicator;
-import root.application.domain.indicator.sma.SMAIndicator;
 import root.application.domain.strategy.AbstractStrategyFactory;
 import root.application.domain.strategy.Strategy;
 
 import java.util.List;
+
+import static root.application.domain.indicator.NumberIndicators.sma;
 
 //    * SMA(7) - shortSma,
 //    * SMA(25) - mediumSma,
@@ -36,23 +35,23 @@ public class SmaStrategy5Factory extends AbstractStrategyFactory
     @Override
     public Strategy create(BarSeries series)
     {
-        var closePriceIndicator = new ClosePriceIndicator(series);
-        var shortSmaIndicator = new SMAIndicator(closePriceIndicator, 7);
-        var mediumSmaIndicator = new SMAIndicator(closePriceIndicator, 25);
-        var longSmaIndicator = new SMAIndicator(closePriceIndicator, 100);
-        var numIndicators = List.<Indicator<Num>>of(
-            shortSmaIndicator, mediumSmaIndicator, longSmaIndicator
+        var closePrice = new ClosePriceIndicator(series);
+        var shortSma = sma(closePrice, 7);
+        var mediumSma = sma(closePrice, 25);
+        var longSma = sma(closePrice, 100);
+        var numberIndicators = List.of(
+            shortSma, mediumSma, longSma
         );
 
         Rule entryRule = // Buy rule:
                 // (shortSma crosses down mediumSma)
-                new CrossedDownIndicatorRule(shortSmaIndicator, mediumSmaIndicator);
+                new CrossedDownIndicatorRule(shortSma, mediumSma);
 
         Rule exitRule = // Sell rule:
                 // (closePrise crosses up mediumSma)
-                new CrossedUpIndicatorRule(closePriceIndicator, mediumSmaIndicator);
+                new CrossedUpIndicatorRule(closePrice, mediumSma);
 
-        return new Strategy(STRATEGY_ID, STRATEGY_NAME, numIndicators, entryRule, exitRule);
+        return new Strategy(STRATEGY_ID, STRATEGY_NAME, numberIndicators, entryRule, exitRule);
     }
 }
 

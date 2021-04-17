@@ -2,17 +2,16 @@ package root.application.domain.strategy.prod;
 
 import org.ta4j.core.BarSeries;
 import org.ta4j.core.indicators.helpers.ClosePriceIndicator;
-import org.ta4j.core.num.Num;
 import org.ta4j.core.trading.rules.BooleanIndicatorRule;
 import org.ta4j.core.trading.rules.CrossedUpIndicatorRule;
 import org.ta4j.core.trading.rules.UnderIndicatorRule;
-import root.application.domain.indicator.Indicator;
-import root.application.domain.indicator.ema.EMAIndicator;
 import root.application.domain.indicator.trend.DownTrendIndicator;
 import root.application.domain.strategy.AbstractStrategyFactory;
 import root.application.domain.strategy.Strategy;
 
 import java.util.List;
+
+import static root.application.domain.indicator.NumberIndicators.ema;
 
 public class ETHUSD_5m_DownTrend_Strategy1Factory extends AbstractStrategyFactory
 {
@@ -28,9 +27,9 @@ public class ETHUSD_5m_DownTrend_Strategy1Factory extends AbstractStrategyFactor
     public Strategy create(BarSeries series)
     {
         var closePrice = new ClosePriceIndicator(series);
-        var ema7 = new EMAIndicator(closePrice, 7);
-        var ema20 = new EMAIndicator(closePrice, 20);
-        var numIndicators = List.<Indicator<Num>>of(ema7, ema20);
+        var ema7 = ema(closePrice, 7);
+        var ema20 = ema(closePrice, 20);
+        var numberIndicators = List.of(ema7, ema20);
 
         var entryRule = new BooleanIndicatorRule(new DownTrendIndicator(ema7, 15, 4.2))
             .and(new UnderIndicatorRule(closePrice, ema7))
@@ -38,7 +37,7 @@ public class ETHUSD_5m_DownTrend_Strategy1Factory extends AbstractStrategyFactor
 
         var exitRule = new CrossedUpIndicatorRule(closePrice, ema20);
 
-        return new Strategy(STRATEGY_ID, STRATEGY_NAME, numIndicators, entryRule, exitRule);
+        return new Strategy(STRATEGY_ID, STRATEGY_NAME, numberIndicators, entryRule, exitRule);
     }
 }
 

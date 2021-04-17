@@ -2,16 +2,14 @@ package root.application.domain.history;
 
 import lombok.RequiredArgsConstructor;
 import org.ta4j.core.BarSeries;
+import org.ta4j.core.Indicator;
 import org.ta4j.core.Trade;
 import org.ta4j.core.num.Num;
-import root.application.domain.indicator.AdditionalChartNumIndicator;
-import root.application.domain.indicator.Indicator;
-import root.application.domain.indicator.MainChartNumIndicator;
-import root.application.domain.level.Level;
+import root.application.domain.ChartType;
+import root.application.domain.level.MainChartLevel;
 import root.application.domain.strategy.Strategy;
 
 import java.util.*;
-import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toList;
@@ -80,7 +78,7 @@ public class TradeHistoryItemBuilder
             if (i == entryOrderIndex)
             {
                 tickBuilder.signal(entryOrder.getType())
-                        .levels(getEntryOrderRelatedLevels(i, strategy));
+                    .mainChartLevels(getMainChartLevels(i, strategy));
             }
             else if (i == exitOrderIndex)
             {
@@ -91,19 +89,19 @@ public class TradeHistoryItemBuilder
         return ticks;
     }
 
-    private List<Level> getEntryOrderRelatedLevels(int index, Strategy strategy)
+    private List<MainChartLevel> getMainChartLevels(int entryOrderIndex, Strategy strategy)
     {
-        return strategy.getStopLossLevelProvider()
-                .map(levelProvider -> levelProvider.getLevel(index))
-                .map(List::of)
-                .orElseGet(List::of);
+        return strategy.getMainChartLevelProviders()
+                .stream()
+                .map(mainChartLevelProvider -> mainChartLevelProvider.getLevel(entryOrderIndex))
+                .collect(toList());
     }
 
     private Tick.TickBuilder getTickBuilder(int index, BarSeries series, Strategy strategy)
     {
         var bar = series.getBar(index);
-        var mainChartNumIndicators = getMainChartNumIndicators(index, strategy);
-        var additionalChartNumIndicators = getAdditionalChartNumIndicators(index, strategy);
+        var mainChartNumIndicators = getNumberIndicators(index, strategy, ChartType.MAIN);
+        var additionalChartNumIndicators = getNumberIndicators(index, strategy, ChartType.ADDITIONAL);
         return Tick.builder()
                 .open(bar.getOpenPrice().doubleValue())
                 .high(bar.getHighPrice().doubleValue())
@@ -115,29 +113,17 @@ public class TradeHistoryItemBuilder
                 .additionalChartNumIndicators(additionalChartNumIndicators);
     }
 
-    private Map<String, Double> getMainChartNumIndicators(int index, Strategy strategy)
-    {
-        Predicate<Indicator<Num>> predicate = indicator -> indicator instanceof MainChartNumIndicator;
-        return getNumberIndicators(index, strategy, predicate);
-    }
-
-    private Map<String, Double> getAdditionalChartNumIndicators(int index, Strategy strategy)
-    {
-        Predicate<Indicator<Num>> predicate = indicator -> indicator instanceof AdditionalChartNumIndicator;
-        return getNumberIndicators(index, strategy, predicate);
-    }
-
-    private Map<String, Double> getNumberIndicators(int index, Strategy strategy, Predicate<Indicator<Num>> predicate)
+    private Map<String, Double> getNumberIndicators(int index, Strategy strategy, ChartType chartType)
     {
         var indicatorNameToValueMap = new LinkedHashMap<String, Double>();
-        strategy.getNumIndicators()
-                .stream()
-                .filter(predicate)
-                .forEach(indicator -> {
-                    var indicatorName = indicator.getName();
-                    var indicatorValue = getIndicatorValue(indicator, index);
-                    indicatorNameToValueMap.put(indicatorName, indicatorValue);
-                });
+        strategy.getNumberIndicators()
+            .stream()
+            .filter(indicator -> chartType.equals(indicator.getChartType()))
+            .forEach(indicator -> {
+                var indicatorName = indicator.getName();
+                var indicatorValue = getIndicatorValue(indicator, index);
+                indicatorNameToValueMap.put(indicatorName, indicatorValue);
+            });
         return indicatorNameToValueMap;
     }
 
