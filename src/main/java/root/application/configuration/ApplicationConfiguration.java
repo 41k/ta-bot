@@ -10,10 +10,8 @@ import root.application.application.repository.ExchangeGatewayAccountRepository;
 import root.application.application.service.*;
 import root.application.domain.history.TradeHistoryItemRepository;
 import root.application.domain.strategy.StrategyFactory;
-import root.application.domain.strategy.prod.*;
-import root.application.domain.strategy.qa.MacdStrategy1Factory;
-import root.application.domain.strategy.qa.RsiStrategy1Factory;
-import root.application.domain.strategy.qa.SmaStrategy5Factory;
+import root.application.domain.strategy.prod.ETHUSD_5m_OnlyTP_DownTrend_Strategy1Factory;
+import root.application.domain.strategy.prod.ETHUSD_5m_OnlyTP_UpTrend_Strategy1Factory;
 import root.application.domain.trading.ExchangeGateway;
 import root.framework.service.UserService;
 
@@ -32,15 +30,16 @@ public class ApplicationConfiguration
     {
         var strategyFactories = List.of(
             // qa
-            new MacdStrategy1Factory(),
-            new RsiStrategy1Factory(),
-            new SmaStrategy5Factory(),
+//            new MacdStrategy1Factory(),
+//            new RsiStrategy1Factory(),
+//            new SmaStrategy5Factory(),
             // prod
-            new ETHUSD_5m_DownTrend_Strategy1Factory(),
-            new ETHUSD_5m_UpTrend_Strategy1Factory(),
-            new ETHUSD_5m_BB_Strategy1Factory(),
-            new ETHUSD_5m_BB_Strategy2Factory(),
-            new ETHUSD_5m_Pullback_Strategy1Factory()
+//            new ETHUSD_5m_DownTrend_Strategy1Factory(),
+//            new ETHUSD_5m_UpTrend_Strategy1Factory(),
+//            new ETHUSD_5m_BB_Strategy1Factory(),
+//            new ETHUSD_5m_BB_Strategy2Factory(),
+            new ETHUSD_5m_OnlyTP_UpTrend_Strategy1Factory(),
+            new ETHUSD_5m_OnlyTP_DownTrend_Strategy1Factory()
         );
         return strategyFactories.stream().collect(toMap(StrategyFactory::getStrategyId, identity()));
     }
